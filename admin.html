@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — DessertWall Studio</title>
+  <meta name="description"
+    content="Owner Admin Dashboard to manage orders, catalog, running offers and customer settings." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>" />
+  <style>
+    body {
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+
+    .admin-topbar {
+      height: 68px;
+      background: var(--c-brown);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .admin-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .admin-logo-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .admin-logo-title span {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: .68rem;
+      color: var(--c-pink-light);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .admin-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .admin-clock {
+      font-size: .84rem;
+      color: rgba(255, 255, 255, .8);
+      background: rgba(255, 255, 255, .1);
+      padding: 6px 14px;
+      border-radius: 50px;
+    }
+
+    .admin-store-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 50px;
+      background: var(--c-pink-light);
+      color: var(--c-brown);
+      font-size: .84rem;
+      font-weight: 700;
+      transition: all var(--transition);
+    }
+
+    .admin-store-link:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .admin-container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 68px);
+    }
+
+    .admin-nav {
+      background: #361B0E;
+      color: rgba(255, 255, 255, .85);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 24px;
+      color: rgba(255, 255, 255, .75);
+      font-weight: 500;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      border-left: 4px solid transparent;
+    }
+
+    .admin-nav-item:hover {
+      background: rgba(255, 255, 255, .07);
+      color: #fff;
+    }
+
+    .admin-nav-item.active {
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+      font-weight: 700;
+      border-left-color: var(--c-gold);
+    }
+
+    .admin-nav-item .icon {
+      font-size: 1.15rem;
+      width: 22px;
+      text-align: center;
+    }
+
+    .admin-content {
+      padding: 36px 40px;
+      background: var(--c-bg);
+      overflow-y: auto;
+    }
+
+    .admin-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.85rem;
+      color: var(--c-brown);
+      margin-bottom: 6px;
+    }
+
+    .admin-page-sub {
+      color: var(--c-text-soft);
+      font-size: .95rem;
+      margin-bottom: 28px;
+    }
+
+    .admin-card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 28px;
+    }
+
+    .admin-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .admin-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--c-brown);
+    }
+
+    .admin-search-bar {
+      padding: 9px 16px;
+      border: 1px solid var(--c-border);
+      border-radius: 50px;
+      font-size: .85rem;
+      background: var(--c-bg);
+      outline: none;
+      min-width: 260px;
+    }
+
+    .admin-search-bar:focus {
+      border-color: var(--c-brown);
+    }
+
+    .order-items-summary {
+      font-size: .82rem;
+      color: var(--c-text-soft);
+      line-height: 1.5;
+    }
+
+    .admin-chip-btn {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-text-soft);
+      transition: all var(--transition);
+    }
+
+    .admin-chip-btn:hover {
+      background: var(--c-pink-light);
+      color: var(--c-brown);
+    }
+
+    @media (max-width: 900px) {
+      .admin-container {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 12px 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--c-border);
+      }
+
+      .admin-nav-item {
+        padding: 10px 16px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+      }
+
+      .admin-nav-item.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--c-gold);
+      }
+
+      .admin-content {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body class="admin-page">
+
+  <!-- ADMIN TOPBAR -->
+  <header class="admin-topbar">
+    <a href="index.html" class="admin-logo">
+      <div class="admin-logo-icon">🍰</div>
+      <div class="admin-logo-title">
+        DessertWall Studio
+        <span>Owner Control Dashboard</span>
+      </div>
+    </a>
+    <div class="admin-topbar-actions">
+      <div class="admin-clock" id="admin-clock"></div>
+      <a href="index.html" class="admin-store-link">
+        <span>🌐</span> View Live Website
+      </a>
+    </div>
+  </header>
+
+  <!-- ADMIN WORKSPACE -->
+  <div class="admin-container">
+    <!-- SIDEBAR NAV -->
+    <aside class="admin-nav">
+      <div class="admin-nav-item active" onclick="switchAdminTab('dashboard')">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+      </div>
+      <div class="admin-nav-item" onclick="switchAdminTab('orders')">
+        <span class="icon">📦</span>
+        <span>Orders</span>
+        <span class="admin-badge" id="pending-orders-badge"></span>
+      </div>
+      <div class="admin-nav-item" onclick="switchAdminTab('products')">
+        <span class="icon">🍰</span>
+        <span>Menu & Catalog</span>
+      </div>
+      <div class="admin-nav-item" onclick="switchAdminTab('offers')">
+        <span class="icon">🏷️</span>
+        <span>Running Offers Bar</span>
+      </div>
+      <div class="admin-nav-item" onclick="switchAdminTab('reviews')">
+        <span class="icon">⭐</span>
+        <span>Customer Reviews</span>
+      </div>
+      <div class="admin-nav-item" onclick="switchAdminTab('settings')">
+        <span class="icon">⚙️</span>
+        <span>Store Settings</span>
+      </div>
+    </aside>
+
+    <!-- MAIN PANELS -->
+    <main class="admin-content">
+
+      <!-- ====================================================
+           1. DASHBOARD OVERVIEW
+           ==================================================== -->
+      <section id="tab-dashboard" class="admin-section active">
+        <h1 class="admin-page-title">Studio Overview</h1>
+        <p class="admin-page-sub">Monitor live orders, revenue, menu availability and active promotional announcements.
+        </p>
+
+        <!-- KPI Stats -->
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-total-revenue">₹0</div>
+            <div class="stat-label">Total Sales Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-total-orders">0</div>
+            <div class="stat-label">Total Orders Placed</div>
+          </div>
+          <div class="stat-card" style="border-color: #FFE0B2; background:#FFFBF5;">
+            <div class="stat-num" style="color:#E65100;" id="stat-pending-orders">0</div>
+            <div class="stat-label">Pending Confirmation</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-active-products">0</div>
+            <div class="stat-label">Active Desserts</div>
+          </div>
+          <div class="stat-card" style="border-color: var(--c-pink-border); background: var(--c-pink-subtle);">
+            <div class="stat-num" style="color:var(--c-brown);" id="stat-active-offers">0</div>
+            <div class="stat-label">Running Offers Active</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Active Offers Ticker Preview -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">⚡ Quick Management Actions</h3>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="switchAdminTab('orders')">
+              📦 View Incoming Orders
+            </button>
+            <button class="btn btn-pink btn-sm" onclick="openAddProductModal()">
+              ➕ Add New Dessert to Menu
+            </button>
+            <button class="btn btn-gold btn-sm" onclick="openAddOfferModal()">
+              🏷️ Add Running Offer
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="window.open('index.html', '_blank')">
+              👁️ Preview Customer Site
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Cart Card (Separate Card on Dashboard) -->
+        <div class="admin-card" id="admin-dashboard-cart-card">
+          <div class="admin-card-header">
+            <div>
+              <h3 class="admin-card-title">🛒 Active Shopping Cart</h3>
+              <p style="font-size:.84rem;color:var(--c-text-soft);margin-top:2px;">
+                Live cart session items stored in this browser — displayed in a dedicated card.
+              </p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="status-badge status-active" id="dash-cart-status-badge">0 Items</span>
+              <button class="admin-chip-btn" onclick="switchAdminTab('cart')">Full Cart Manager →</button>
+            </div>
+          </div>
+          <div id="dash-cart-items-preview">
+            <!-- Dynamic separate card view populated by JS -->
+          </div>
+        </div>
+
+        <!-- Recent Orders Preview -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">Recent Incoming Orders</h3>
+            <button class="admin-chip-btn" onclick="switchAdminTab('orders')">View All Orders →</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Delivery Type</th>
+                  <th>Preferred Date</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-recent-orders">
+                <!-- JS populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           2. ORDERS MANAGEMENT
+           ==================================================== -->
+      <section id="tab-orders" class="admin-section">
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+          <div>
+            <h1 class="admin-page-title">Order Management</h1>
+            <p class="admin-page-sub">Review incoming website orders, update preparation stages, and view customer
+              preferences.</p>
+          </div>
+          <input type="text" id="order-search-input" class="admin-search-bar"
+            placeholder="🔍 Search customer, phone, or ID…" oninput="filterOrdersTable()" />
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="admin-filter-bar" id="order-status-filters">
+          <button class="admin-filter-btn active" onclick="setOrderStatusFilter('All', this)">All Orders (<span
+              id="count-all">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Pending', this)">Pending (<span
+              id="count-pending">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Confirmed', this)">Confirmed (<span
+              id="count-confirmed">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Preparing', this)">Preparing (<span
+              id="count-preparing">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Ready', this)">Ready for Dispatch (<span
+              id="count-ready">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Completed', this)">Completed (<span
+              id="count-completed">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Cancelled', this)">Cancelled (<span
+              id="count-cancelled">0</span>)</button>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="admin-card" style="padding:0; overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID & Date</th>
+                  <th>Customer Info</th>
+                  <th>Order Details & Customization</th>
+                  <th>Delivery Address / Mode</th>
+                  <th>Payment</th>
+                  <th>Total</th>
+                  <th>Current Status</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <!-- JS Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           3. PRODUCTS & CATALOG
+           ==================================================== -->
+      <section id="tab-products" class="admin-section">
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+          <div>
+            <h1 class="admin-page-title">Menu & Dessert Catalog</h1>
+            <p class="admin-page-sub">Manage available treats, update pricing, toggle availability status, and add new
+              recipes.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">
+            ➕ Add New Dessert
+          </button>
+        </div>
+
+        <div class="admin-card" style="padding:0; overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Photo</th>
+                  <th>Dessert Name & Category</th>
+                  <th>Base Price</th>
+                  <th>Sizes / Options</th>
+                  <th>Prep Time</th>
+                  <th>Availability</th>
+                  <th>Featured</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body">
+                <!-- JS populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           4. RUNNING OFFERS BAR MANAGEMENT
+           ==================================================== -->
+      <section id="tab-offers" class="admin-section">
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+          <div>
+            <h1 class="admin-page-title">Running Offers Bar</h1>
+            <p class="admin-page-sub">Configure the continuous marquee offer strip shown directly below the navigation
+              bar across the site.</p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="openAddOfferModal()">
+            ➕ Create New Running Offer
+          </button>
+        </div>
+
+        <!-- Live Ticker Preview Card -->
+        <div class="admin-card" style="background:var(--c-pink-subtle); border-color:var(--c-pink-border);">
+          <div class="admin-card-header" style="margin-bottom:12px;">
+            <h3 class="admin-card-title" style="font-size:1.05rem;">Live Running Offer Bar Preview (As seen below
+              navbar)</h3>
+            <span class="status-badge status-active">Active Ticker</span>
+          </div>
+          <div class="running-offer-bar" style="border-radius:var(--radius-sm); border:1px solid var(--c-pink-border);">
+            <div class="offer-tag">
+              <span class="offer-tag-icon">⚡</span>
+              <span>SPECIAL OFFERS</span>
+            </div>
+            <div class="offer-marquee-container">
+              <div class="offer-marquee-track" id="admin-offer-preview-track">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offers Grid -->
+        <div class="admin-offers-grid" id="admin-offers-grid">
+          <!-- JS populated -->
+        </div>
+      </section>
+
+      <!-- ====================================================
+           5. REVIEWS & TESTIMONIALS
+           ==================================================== -->
+      <section id="tab-reviews" class="admin-section">
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+          <div>
+            <h1 class="admin-page-title">Customer Reviews & Ratings</h1>
+            <p class="admin-page-sub">Read and manage customer testimonials shown on the store home page.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAddReviewModal()">
+            ➕ Add Review
+          </button>
+        </div>
+
+        <div class="admin-offers-grid" id="admin-reviews-grid">
+          <!-- JS populated -->
+        </div>
+      </section>
+
+      <!-- ====================================================
+           6. STORE SETTINGS
+           ==================================================== -->
+      <section id="tab-settings" class="admin-section">
+        <h1 class="admin-page-title">Studio Business Settings</h1>
+        <p class="admin-page-sub">Update business contact details, operational timings, and support channels.</p>
+
+        <div class="admin-card" style="max-width:760px;">
+          <form id="settings-form" onsubmit="saveSettings(event)" class="admin-form-grid">
+            <div class="form-group">
+              <label>Studio Name</label>
+              <input type="text" id="setting-name" required />
+            </div>
+            <div class="form-group">
+              <label>Brand Tagline</label>
+              <input type="text" id="setting-tagline" />
+            </div>
+            <div class="form-group">
+              <label>Support WhatsApp Number (without +)</label>
+              <input type="text" id="setting-whatsapp" required />
+              <small style="color:var(--c-text-muted);font-size:.78rem;">Used strictly for bottom support button and
+                Contact page.</small>
+            </div>
+            <div class="form-group">
+              <label>Service Area / Location</label>
+              <input type="text" id="setting-serviceArea" />
+            </div>
+            <div class="form-group full">
+              <label>Kitchen Timings & Schedule</label>
+              <input type="text" id="setting-timings" />
+            </div>
+            <div class="form-group full">
+              <label>Contact Page Subtitle / Bio</label>
+              <textarea id="setting-contactText"></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Business Settings</button>
+              <button type="button" class="btn btn-outline" onclick="resetToDefaults()">Reset to Demo Defaults</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           7. ACTIVE CART MANAGEMENT (SEPARATE CARD)
+           ==================================================== -->
+      <section id="tab-cart" class="admin-section">
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+          <div>
+            <h1 class="admin-page-title">Active Shopping Cart</h1>
+            <p class="admin-page-sub">Dedicated cart session card. View items, adjust quantities, or convert directly
+              into an order.</p>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="clearCartFromAdmin()">
+              🗑️ Empty Cart
+            </button>
+            <button class="btn btn-gold btn-sm" onclick="addSampleCartItem()">
+              ➕ Add Test Dessert
+            </button>
+          </div>
+        </div>
+
+        <!-- Separate Cart Card -->
+        <div class="admin-card" id="admin-full-cart-card">
+          <div id="admin-full-cart-container">
+            <!-- Dynamic separate card view populated by JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ====================================================
+       MODALS FOR ADMIN
+       ==================================================== -->
+
+  <!-- Add / Edit Product Modal -->
+  <div id="product-admin-modal" class="hidden"
+    style="position:fixed;inset:0;background:rgba(42,20,10,.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div class="checkout-box" style="max-width:650px;">
+      <div class="checkout-header">
+        <h3 class="admin-card-title" id="product-modal-title">Add New Dessert</h3>
+        <button class="cart-close" onclick="closeProductAdminModal()">&times;</button>
+      </div>
+      <div class="checkout-body">
+        <form id="product-admin-form" onsubmit="saveProductForm(event)" class="admin-form-grid">
+          <input type="hidden" id="prod-edit-id" />
+          <div class="form-group full">
+            <label>Dessert Title *</label>
+            <input type="text" id="prod-name" placeholder="e.g. Belgian Chocolate Truffle Cake" required />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="prod-cat" required>
+              <option value="Birthday Cakes">Birthday Cakes</option>
+              <option value="Brownies">Brownies</option>
+              <option value="Cupcakes">Cupcakes</option>
+              <option value="Signature Desserts">Signature Desserts</option>
+              <option value="Custom Desserts">Custom Desserts</option>
+              <option value="Seasonal / Special">Seasonal / Special</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Starting Price (₹) *</label>
+            <input type="number" id="prod-price" placeholder="850" min="50" required />
+          </div>
+          <div class="form-group full">
+            <label>Description *</label>
+            <textarea id="prod-desc" placeholder="Handcrafted with Belgian chocolate ganache..." required></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Available Sizes (comma separated)</label>
+            <input type="text" id="prod-sizes" placeholder="500g, 1 kg, 1.5 kg, 2 kg" />
+          </div>
+          <div class="form-group full">
+            <label>Available Flavours (comma separated)</label>
+            <input type="text" id="prod-flavours" placeholder="Dark Chocolate, Milk Chocolate, Vanilla" />
+          </div>
+          <div class="form-group">
+            <label>Preparation Time</label>
+            <input type="text" id="prod-prep" placeholder="e.g. 24 hours" />
+          </div>
+          <div class="form-group">
+            <label>Image Path / URL</label>
+            <select id="prod-img">
+              <option value="images/cake_chocolate.jpg">Chocolate Cake (images/cake_chocolate.jpg)</option>
+              <option value="images/cake_birthday.jpg">Birthday Cake (images/cake_birthday.jpg)</option>
+              <option value="images/brownies.jpg">Brownies (images/brownies.jpg)</option>
+              <option value="images/cupcakes.jpg">Cupcakes (images/cupcakes.jpg)</option>
+              <option value="images/signature.jpg">Signature Dessert (images/signature.jpg)</option>
+              <option value="images/hero.jpg">Hero Banner (images/hero.jpg)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" id="prod-available" checked /> Available in Store</label>
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" id="prod-featured" /> Feature on Homepage</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Dessert</button>
+            <button type="button" class="btn btn-outline" onclick="closeProductAdminModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Offer Modal -->
+  <div id="offer-admin-modal" class="hidden"
+    style="position:fixed;inset:0;background:rgba(42,20,10,.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div class="checkout-box" style="max-width:560px;">
+      <div class="checkout-header">
+        <h3 class="admin-card-title" id="offer-modal-title">Create Running Offer</h3>
+        <button class="cart-close" onclick="closeOfferAdminModal()">&times;</button>
+      </div>
+      <div class="checkout-body">
+        <form id="offer-admin-form" onsubmit="saveOfferForm(event)" class="admin-form-grid">
+          <input type="hidden" id="offer-edit-id" />
+          <div class="form-group full">
+            <label>Offer Title *</label>
+            <input type="text" id="offer-title" placeholder="e.g. Weekend Cupcake Special" required />
+          </div>
+          <div class="form-group">
+            <label>Badge Pill Text *</label>
+            <input type="text" id="offer-badge" placeholder="e.g. 20% OFF or BUY 1 GET 1" required />
+          </div>
+          <div class="form-group">
+            <label>Target Category</label>
+            <select id="offer-cat">
+              <option value="All">All Categories</option>
+              <option value="Birthday Cakes">Birthday Cakes</option>
+              <option value="Brownies">Brownies</option>
+              <option value="Cupcakes">Cupcakes</option>
+              <option value="Signature Desserts">Signature Desserts</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Running Text Announcement *</label>
+            <input type="text" id="offer-text"
+              placeholder="e.g. 20% off on all signature birthday cakes above Rs.1,000! Code: BDAY20" required />
+          </div>
+          <div class="form-group full">
+            <label>Detailed Offer Description</label>
+            <textarea id="offer-desc" placeholder="Details about how to avail the offer..."></textarea>
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" id="offer-active" checked /> Active in Running Bar</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Running Offer</button>
+            <button type="button" class="btn btn-outline" onclick="closeOfferAdminModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Slip Modal -->
+  <div id="order-details-modal" class="hidden"
+    style="position:fixed;inset:0;background:rgba(42,20,10,.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div class="checkout-box" style="max-width:580px;">
+      <div class="checkout-header">
+        <h3 class="admin-card-title" id="order-slip-title">Order Details</h3>
+        <button class="cart-close" onclick="closeOrderDetailsModal()">&times;</button>
+      </div>
+      <div class="checkout-body" id="order-slip-content">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- Shared Data & Logic -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+
+  <!-- Admin Page Script -->
+  <script>
+    let currentFilterStatus = 'All';
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      const el = document.getElementById('admin-clock');
+      if (el) el.textContent = now.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Tab Switching
+    function switchAdminTab(tabName) {
+      document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-item').forEach(item => item.classList.remove('active'));
+
+      const targetSec = document.getElementById(`tab-${tabName}`);
+      if (targetSec) targetSec.classList.add('active');
+
+      const navItems = document.querySelectorAll('.admin-nav-item');
+      const tabNames = ['dashboard', 'orders', 'products', 'offers', 'reviews', 'settings', 'cart'];
+      const idx = tabNames.indexOf(tabName);
+      if (idx > -1 && navItems[idx]) navItems[idx].classList.add('active');
+
+      if (tabName === 'dashboard') renderDashboard();
+      if (tabName === 'orders') renderOrdersTable();
+      if (tabName === 'products') renderProductsTable();
+      if (tabName === 'offers') renderOffersView();
+      if (tabName === 'reviews') renderReviewsView();
+      if (tabName === 'settings') loadSettingsForm();
+      if (tabName === 'cart') renderAdminCartView();
+    }
+
+    // ====================================================
+    // 1. Dashboard Logic
+    // ====================================================
+    function renderDashboard() {
+      const orders = getOrders();
+      let totalRevenue = 0;
+      let pendingCount = 0;
+
+      orders.forEach(o => {
+        if (o.status !== 'Cancelled') totalRevenue += (o.total || 0);
+        if (o.status === 'Pending') pendingCount++;
+      });
+
+      document.getElementById('stat-total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+      document.getElementById('stat-total-orders').textContent = orders.length;
+      document.getElementById('stat-pending-orders').textContent = pendingCount;
+      document.getElementById('pending-orders-badge').textContent = pendingCount;
+      document.getElementById('stat-active-products').textContent = appData.products.filter(p => p.available).length;
+      document.getElementById('stat-active-offers').textContent = appData.offers.filter(o => o.active !== false).length;
+
+      // Recent 5 orders
+      const tbody = document.getElementById('dashboard-recent-orders');
+      if (!tbody) return;
+
+      const recent = orders.slice(0, 5);
+      if (!recent.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--c-text-soft);">No orders placed yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = recent.map(o => {
+        const statusClass = `status-${o.status.toLowerCase().replace(/\\s+/g, '-')}`;
+        return `
+          <tr>
+            <td><strong>${o.id}</strong><div style="font-size:.74rem;color:var(--c-text-muted);">${o.date}</div></td>
+            <td><strong>${o.customer.name}</strong><br><span style="font-size:.78rem;color:var(--c-text-soft);">${o.customer.phone}</span></td>
+            <td><span class="status-badge" style="background:#FAF5EE;color:var(--c-brown);">${o.customer.deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup'}</span></td>
+            <td>${o.customer.preferredDate || '—'}</td>
+            <td class="order-items-summary">${(o.items || []).map(i => `${i.quantity}x ${i.name}`).join(', ')}</td>
+            <td><strong>₹${o.total.toLocaleString()}</strong></td>
+            <td><span class="status-badge ${statusClass}">${o.status}</span></td>
+            <td><button class="admin-chip-btn" onclick="openOrderDetails('${o.id}')">View Slip</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ====================================================
+    // 2. Orders Management Logic
+    // ====================================================
+    function setOrderStatusFilter(status, btn) {
+      currentFilterStatus = status;
+      document.querySelectorAll('#order-status-filters .admin-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderOrdersTable();
+    }
+
+    function renderOrdersTable() {
+      const orders = getOrders();
+      const tbody = document.getElementById('orders-table-body');
+      if (!tbody) return;
+
+      // Update badge counts
+      const counts = { All: orders.length, Pending: 0, Confirmed: 0, Preparing: 0, Ready: 0, Completed: 0, Cancelled: 0 };
+      orders.forEach(o => {
+        if (counts[o.status] !== undefined) counts[o.status]++;
+      });
+
+      document.getElementById('count-all').textContent = counts.All;
+      document.getElementById('count-pending').textContent = counts.Pending;
+      document.getElementById('count-confirmed').textContent = counts.Confirmed;
+      document.getElementById('count-preparing').textContent = counts.Preparing;
+      document.getElementById('count-ready').textContent = counts.Ready;
+      document.getElementById('count-completed').textContent = counts.Completed;
+      document.getElementById('count-cancelled').textContent = counts.Cancelled;
+      document.getElementById('pending-orders-badge').textContent = counts.Pending;
+
+      const q = (document.getElementById('order-search-input')?.value || '').toLowerCase().trim();
+
+      const filtered = orders.filter(o => {
+        const matchesStatus = (currentFilterStatus === 'All') || (o.status === currentFilterStatus);
+        const matchesQuery = !q ||
+          o.id.toLowerCase().includes(q) ||
+          o.customer.name.toLowerCase().includes(q) ||
+          o.customer.phone.includes(q);
+        return matchesStatus && matchesQuery;
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--c-text-soft);">No orders match the current filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => {
+        const statusClass = `status-${o.status.toLowerCase().replace(/\\s+/g, '-')}`;
+        const itemsList = (o.items || []).map(i => {
+          let s = `• <strong>${i.quantity}x ${i.name}</strong> (${i.size || 'Standard'})`;
+          if (i.flavour) s += ` - ${i.flavour}`;
+          if (i.egg) s += ` [${i.egg}]`;
+          if (i.customMessage) s += `<br><em style="color:#B85025;padding-left:12px;">Msg: "${i.customMessage}"</em>`;
+          if (i.specialNotes) s += `<br><span style="color:var(--c-text-muted);font-size:.76rem;padding-left:12px;">Notes: ${i.specialNotes}</span>`;
+          return s;
+        }).join('<br>');
+
+        return `
+          <tr>
+            <td>
+              <strong>${o.id}</strong>
+              <div style="font-size:.75rem;color:var(--c-text-muted);">${o.date}</div>
+            </td>
+            <td>
+              <strong>${o.customer.name}</strong><br>
+              <a href="tel:${o.customer.phone}" style="color:var(--c-brown);font-weight:600;font-size:.82rem;">${o.customer.phone}</a>
+              ${o.customer.email ? `<div style="font-size:.74rem;color:var(--c-text-soft);">${o.customer.email}</div>` : ''}
+            </td>
+            <td style="font-size:.84rem;max-width:320px;">${itemsList}</td>
+            <td style="font-size:.82rem;">
+              <span class="status-badge" style="background:var(--c-pink-light);color:var(--c-brown);margin-bottom:4px;">
+                ${o.customer.deliveryType === 'delivery' ? '🚚 Delivery' : '🏪 Pickup'}
+              </span>
+              <div>${o.customer.address}</div>
+              <div style="color:var(--c-text-muted);font-size:.75rem;margin-top:2px;">Slot: ${o.customer.preferredDate || 'ASAP'} (${o.customer.timeSlot || ''})</div>
+            </td>
+            <td><span style="font-size:.82rem;font-weight:600;">${o.paymentMethod || 'UPI'}</span></td>
+            <td><strong>₹${o.total.toLocaleString()}</strong></td>
+            <td><span class="status-badge ${statusClass}">${o.status}</span></td>
+            <td>
+              <select class="admin-select-status" onchange="handleStatusChange('${o.id}', this.value)">
+                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                <option value="Preparing" ${o.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                <option value="Ready" ${o.status === 'Ready' ? 'selected' : ''}>Ready</option>
+                <option value="Out for Delivery" ${o.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+                <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterOrdersTable() {
+      renderOrdersTable();
+    }
+
+    function handleStatusChange(orderId, newStatus) {
+      if (updateOrderStatus(orderId, newStatus)) {
+        showToast(`Order ${orderId} updated to ${newStatus}`, 'success');
+        renderDashboard();
+        renderOrdersTable();
+      }
+    }
+
+    function openOrderDetails(orderId) {
+      const order = getOrders().find(o => o.id === orderId);
+      if (!order) return;
+
+      document.getElementById('order-slip-title').textContent = `Order Slip: ${order.id}`;
+      const content = document.getElementById('order-slip-content');
+      content.innerHTML = `
+        <div style="background:var(--c-cream);border:1px solid var(--c-border);border-radius:var(--radius-sm);padding:18px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+            <strong>Order ID: ${order.id}</strong>
+            <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+          </div>
+          <div><strong>Customer:</strong> ${order.customer.name} (${order.customer.phone})</div>
+          <div><strong>Address:</strong> ${order.customer.address}</div>
+          <div><strong>Delivery Mode:</strong> ${order.customer.deliveryType}</div>
+          <div><strong>Preferred Date:</strong> ${order.customer.preferredDate} (${order.customer.timeSlot})</div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <h4 style="margin-bottom:8px;font-family:'Playfair Display',serif;color:var(--c-brown)">Items Ordered:</h4>
+          ${(order.items || []).map(i => `
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--c-border);padding:6px 0;font-size:.88rem;">
+              <span>${i.quantity}x ${i.name} (${i.size || 'Regular'}) ${i.flavour ? '— ' + i.flavour : ''}</span>
+              <strong>₹${(i.price * i.quantity).toLocaleString()}</strong>
+            </div>
+          `).join('')}
+          <div style="display:flex;justify-content:space-between;padding-top:10px;font-weight:700;font-size:1.05rem;color:var(--c-brown);">
+            <span>Total:</span>
+            <span>₹${order.total.toLocaleString()}</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="window.print()">Print Order Slip</button>
+      `;
+
+      document.getElementById('order-details-modal').classList.remove('hidden');
+    }
+
+    function closeOrderDetailsModal() {
+      document.getElementById('order-details-modal').classList.add('hidden');
+    }
+
+    // ====================================================
+    // 3. Products & Catalog Logic
+    // ====================================================
+    function renderProductsTable() {
+      const tbody = document.getElementById('products-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = appData.products.map(p => `
+        <tr>
+          <td><img src="${p.image}" alt="${p.name}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" onerror="this.src='images/hero.jpg'" /></td>
+          <td>
+            <strong>${p.name}</strong>
+            <div style="font-size:.75rem;color:var(--c-gold);text-transform:uppercase;font-weight:600;">${p.category}</div>
+          </td>
+          <td><strong>₹${p.price}</strong></td>
+          <td style="font-size:.78rem;color:var(--c-text-soft);max-width:180px;">${(p.sizes || []).join(', ') || 'Standard'}</td>
+          <td>${p.preparationTime || '24h'}</td>
+          <td>
+            <button class="status-badge ${p.available ? 'status-available' : 'status-unavailable'}" style="cursor:pointer;" onclick="toggleProductAvailability('${p.id}')">
+              ${p.available ? 'Available' : 'Unavailable'}
+            </button>
+          </td>
+          <td>
+            <button class="status-badge" style="cursor:pointer;background:${p.featured ? '#FFF3E0' : '#F5F5F5'};color:${p.featured ? '#E65100' : '#777'};" onclick="toggleProductFeatured('${p.id}')">
+              ${p.featured ? '★ Yes' : 'No'}
+            </button>
+          </td>
+          <td>
+            <div class="admin-actions">
+              <button class="admin-btn admin-btn-edit" onclick="editProduct('${p.id}')">Edit</button>
+              <button class="admin-btn admin-btn-del" onclick="deleteProduct('${p.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function toggleProductAvailability(id) {
+      const p = appData.products.find(x => x.id === id);
+      if (p) {
+        p.available = !p.available;
+        saveAdminData(appData);
+        showToast(`${p.name} is now ${p.available ? 'Available' : 'Unavailable'}`, 'success');
+        renderProductsTable();
+        renderDashboard();
+      }
+    }
+
+    function toggleProductFeatured(id) {
+      const p = appData.products.find(x => x.id === id);
+      if (p) {
+        p.featured = !p.featured;
+        saveAdminData(appData);
+        showToast(`${p.name} ${p.featured ? 'featured on homepage' : 'removed from featured'}`, 'success');
+        renderProductsTable();
+      }
+    }
+
+    function openAddProductModal() {
+      document.getElementById('product-modal-title').textContent = 'Add New Dessert';
+      document.getElementById('prod-edit-id').value = '';
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-price').value = '';
+      document.getElementById('prod-desc').value = '';
+      document.getElementById('prod-sizes').value = '500g, 1 kg, 1.5 kg, 2 kg';
+      document.getElementById('prod-flavours').value = 'Dark Chocolate, Milk Chocolate, Vanilla';
+      document.getElementById('prod-prep').value = '24 hours';
+      document.getElementById('prod-available').checked = true;
+      document.getElementById('prod-featured').checked = false;
+      document.getElementById('product-admin-modal').classList.remove('hidden');
+    }
+
+    function editProduct(id) {
+      const p = appData.products.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('product-modal-title').textContent = 'Edit Dessert';
+      document.getElementById('prod-edit-id').value = p.id;
+      document.getElementById('prod-name').value = p.name;
+      document.getElementById('prod-cat').value = p.category;
+      document.getElementById('prod-price').value = p.price;
+      document.getElementById('prod-desc').value = p.description;
+      document.getElementById('prod-sizes').value = (p.sizes || []).join(', ');
+      document.getElementById('prod-flavours').value = (p.flavours || []).join(', ');
+      document.getElementById('prod-prep').value = p.preparationTime || '';
+      document.getElementById('prod-img').value = p.image || 'images/hero.jpg';
+      document.getElementById('prod-available').checked = p.available !== false;
+      document.getElementById('prod-featured').checked = !!p.featured;
+      document.getElementById('product-admin-modal').classList.remove('hidden');
+    }
+
+    function closeProductAdminModal() {
+      document.getElementById('product-admin-modal').classList.add('hidden');
+    }
+
+    function saveProductForm(e) {
+      e.preventDefault();
+      const editId = document.getElementById('prod-edit-id').value;
+      const name = document.getElementById('prod-name').value.trim();
+      const cat = document.getElementById('prod-cat').value;
+      const price = parseInt(document.getElementById('prod-price').value, 10);
+      const desc = document.getElementById('prod-desc').value.trim();
+      const sizes = document.getElementById('prod-sizes').value.split(',').map(s => s.trim()).filter(Boolean);
+      const flavours = document.getElementById('prod-flavours').value.split(',').map(s => s.trim()).filter(Boolean);
+      const prep = document.getElementById('prod-prep').value.trim();
+      const img = document.getElementById('prod-img').value;
+      const available = document.getElementById('prod-available').checked;
+      const featured = document.getElementById('prod-featured').checked;
+
+      if (editId) {
+        const p = appData.products.find(x => x.id === editId);
+        if (p) {
+          p.name = name; p.category = cat; p.price = price;
+          p.priceLabel = `Starting from Rs.${price.toLocaleString()}`;
+          p.description = desc; p.sizes = sizes; p.flavours = flavours;
+          p.preparationTime = prep; p.image = img;
+          p.available = available; p.featured = featured;
+        }
+      } else {
+        const newId = 'p' + (Date.now());
+        appData.products.push({
+          id: newId,
+          slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          name, category: cat, price,
+          priceLabel: `Starting from Rs.${price.toLocaleString()}`,
+          description: desc, sizes, flavours,
+          eggOptions: ['Egg', 'Eggless'],
+          customizationEnabled: true,
+          preparationTime: prep, image: img,
+          available, featured
+        });
+      }
+
+      saveAdminData(appData);
+      closeProductAdminModal();
+      showToast('Dessert saved successfully!', 'success');
+      renderProductsTable();
+      renderDashboard();
+    }
+
+    function deleteProduct(id) {
+      if (!confirm('Are you sure you want to delete this dessert?')) return;
+      appData.products = appData.products.filter(x => x.id !== id);
+      saveAdminData(appData);
+      showToast('Dessert deleted', 'success');
+      renderProductsTable();
+      renderDashboard();
+    }
+
+    // ====================================================
+    // 4. Running Offers Bar Logic
+    // ====================================================
+    function renderOffersView() {
+      // Preview track
+      const track = document.getElementById('admin-offer-preview-track');
+      if (track) {
+        const active = appData.offers.filter(o => o.active !== false);
+        track.innerHTML = active.map(o => `
+          <div class="offer-item">
+            <span class="offer-pill">${o.badge || 'OFFER'}</span>
+            <span class="offer-text">${o.discountText || o.title}</span>
+            <span class="offer-cta">${o.linkText || 'Explore'} →</span>
+          </div>
+          <span class="offer-sep">•</span>
+        `).join('') + active.map(o => `
+          <div class="offer-item">
+            <span class="offer-pill">${o.badge || 'OFFER'}</span>
+            <span class="offer-text">${o.discountText || o.title}</span>
+            <span class="offer-cta">${o.linkText || 'Explore'} →</span>
+          </div>
+          <span class="offer-sep">•</span>
+        `).join('');
+      }
+
+      const grid = document.getElementById('admin-offers-grid');
+      if (!grid) return;
+
+      grid.innerHTML = appData.offers.map(o => `
+        <div class="admin-offer-card ${o.active !== false ? 'active-offer' : 'inactive-offer'}">
+          <div class="admin-offer-header">
+            <span class="offer-pill">${o.badge || 'OFFER'}</span>
+            <button class="status-badge ${o.active !== false ? 'status-active' : 'status-inactive'}" style="cursor:pointer;" onclick="toggleOfferActive('${o.id}')">
+              ${o.active !== false ? '● Live in Bar' : '○ Inactive'}
+            </button>
+          </div>
+          <h4 class="admin-offer-title">${o.title}</h4>
+          <p class="admin-offer-desc">${o.discountText || o.description}</p>
+          <div class="admin-offer-meta">
+            Target Category: <strong>${o.linkCategory || 'All'}</strong><br>
+            Timeline: ${o.startDate || 'Always'} to ${o.endDate || 'Ongoing'}
+          </div>
+          <div class="admin-offer-footer">
+            <button class="admin-btn admin-btn-edit" onclick="editOffer('${o.id}')">Edit</button>
+            <button class="admin-btn admin-btn-del" onclick="deleteOffer('${o.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleOfferActive(id) {
+      const o = appData.offers.find(x => x.id === id);
+      if (o) {
+        o.active = (o.active === false);
+        saveAdminData(appData);
+        showToast(`Offer ${o.title} is now ${o.active ? 'Active' : 'Inactive'}`, 'success');
+        renderOffersView();
+        renderDashboard();
+      }
+    }
+
+    function openAddOfferModal() {
+      document.getElementById('offer-modal-title').textContent = 'Create Running Offer';
+      document.getElementById('offer-edit-id').value = '';
+      document.getElementById('offer-title').value = '';
+      document.getElementById('offer-badge').value = '15% OFF';
+      document.getElementById('offer-text').value = '';
+      document.getElementById('offer-desc').value = '';
+      document.getElementById('offer-active').checked = true;
+      document.getElementById('offer-admin-modal').classList.remove('hidden');
+    }
+
+    function editOffer(id) {
+      const o = appData.offers.find(x => x.id === id);
+      if (!o) return;
+      document.getElementById('offer-modal-title').textContent = 'Edit Running Offer';
+      document.getElementById('offer-edit-id').value = o.id;
+      document.getElementById('offer-title').value = o.title;
+      document.getElementById('offer-badge').value = o.badge || 'OFFER';
+      document.getElementById('offer-cat').value = o.linkCategory || 'All';
+      document.getElementById('offer-text').value = o.discountText || '';
+      document.getElementById('offer-desc').value = o.description || '';
+      document.getElementById('offer-active').checked = o.active !== false;
+      document.getElementById('offer-admin-modal').classList.remove('hidden');
+    }
+
+    function closeOfferAdminModal() {
+      document.getElementById('offer-admin-modal').classList.add('hidden');
+    }
+
+    function saveOfferForm(e) {
+      e.preventDefault();
+      const editId = document.getElementById('offer-edit-id').value;
+      const title = document.getElementById('offer-title').value.trim();
+      const badge = document.getElementById('offer-badge').value.trim();
+      const cat = document.getElementById('offer-cat').value;
+      const text = document.getElementById('offer-text').value.trim();
+      const desc = document.getElementById('offer-desc').value.trim();
+      const active = document.getElementById('offer-active').checked;
+
+      if (editId) {
+        const o = appData.offers.find(x => x.id === editId);
+        if (o) {
+          o.title = title; o.badge = badge; o.linkCategory = cat;
+          o.discountText = text; o.description = desc; o.active = active;
+        }
+      } else {
+        appData.offers.push({
+          id: 'o' + Date.now(),
+          title, badge, linkCategory: cat,
+          discountText: text, description: desc,
+          linkText: 'Explore', active,
+          startDate: '2026-09-01', endDate: '2026-12-31'
+        });
+      }
+
+      saveAdminData(appData);
+      closeOfferAdminModal();
+      showToast('Running offer saved and updated across store!', 'success');
+      renderOffersView();
+      renderDashboard();
+    }
+
+    function deleteOffer(id) {
+      if (!confirm('Are you sure you want to remove this running offer?')) return;
+      appData.offers = appData.offers.filter(x => x.id !== id);
+      saveAdminData(appData);
+      showToast('Offer removed', 'success');
+      renderOffersView();
+      renderDashboard();
+    }
+
+    // ====================================================
+    // 5. Reviews Logic
+    // ====================================================
+    function renderReviewsView() {
+      const grid = document.getElementById('admin-reviews-grid');
+      if (!grid) return;
+
+      grid.innerHTML = (appData.testimonials || []).map((t, idx) => `
+        <div class="admin-offer-card">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-review">"${t.review}"</p>
+          <div style="font-weight:700;color:var(--c-brown);margin-bottom:12px;">— ${t.name}</div>
+          <button class="admin-btn admin-btn-del" onclick="deleteReview(${idx})">Delete Review</button>
+        </div>
+      `).join('');
+    }
+
+    function openAddReviewModal() {
+      const name = prompt('Customer Name:');
+      if (!name) return;
+      const review = prompt('Review text:');
+      if (!review) return;
+
+      if (!appData.testimonials) appData.testimonials = [];
+      appData.testimonials.push({ id: 't' + Date.now(), name, review, rating: 5 });
+      saveAdminData(appData);
+      showToast('Review added!', 'success');
+      renderReviewsView();
+    }
+
+    function deleteReview(idx) {
+      if (confirm('Delete this testimonial?')) {
+        appData.testimonials.splice(idx, 1);
+        saveAdminData(appData);
+        showToast('Review removed', 'success');
+        renderReviewsView();
+      }
+    }
+
+    // ====================================================
+    // 6. Settings Logic
+    // ====================================================
+    function loadSettingsForm() {
+      const b = appData.business || {};
+      document.getElementById('setting-name').value = b.name || '';
+      document.getElementById('setting-tagline').value = b.tagline || '';
+      document.getElementById('setting-whatsapp').value = b.whatsapp || '';
+      document.getElementById('setting-serviceArea').value = b.serviceArea || '';
+      document.getElementById('setting-timings').value = b.timings || '';
+      document.getElementById('setting-contactText').value = b.contactText || '';
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      if (!appData.business) appData.business = {};
+      appData.business.name = document.getElementById('setting-name').value.trim();
+      appData.business.tagline = document.getElementById('setting-tagline').value.trim();
+      appData.business.whatsapp = document.getElementById('setting-whatsapp').value.trim();
+      appData.business.serviceArea = document.getElementById('setting-serviceArea').value.trim();
+      appData.business.timings = document.getElementById('setting-timings').value.trim();
+      appData.business.contactText = document.getElementById('setting-contactText').value.trim();
+
+      saveAdminData(appData);
+      showToast('Store settings saved successfully!', 'success');
+    }
+
+    function resetToDefaults() {
+      if (confirm('Reset catalog, orders, and offers to factory defaults?')) {
+        localStorage.removeItem('hds_admin_data');
+        localStorage.removeItem('hds_orders');
+        location.reload();
+      }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+    });
+
+  </script>
+</body>
+
+</html>
