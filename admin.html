@@ -8,8 +8,7 @@
   <meta name="description"
     content="Owner Admin Dashboard to manage orders, catalog, running offers and customer settings." />
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>" />
+  <link rel="icon" href="images/logo.jpg">
   <style>
     body {
       background: var(--c-bg);
@@ -258,8 +257,8 @@
 
   <!-- ADMIN TOPBAR -->
   <header class="admin-topbar">
-    <a href="index.html" class="admin-logo">
-      <div class="admin-logo-icon">🍰</div>
+    <a class="admin-logo">
+      <div class="admin-logo-icon"><img src="images/logo.jpg"></div>
       <div class="admin-logo-title">
         DessertWall Studio
         <span>Owner Control Dashboard</span>
@@ -357,25 +356,6 @@
             <button class="btn btn-outline btn-sm" onclick="window.open('index.html', '_blank')">
               👁️ Preview Customer Site
             </button>
-          </div>
-        </div>
-
-        <!-- Live Cart Card (Separate Card on Dashboard) -->
-        <div class="admin-card" id="admin-dashboard-cart-card">
-          <div class="admin-card-header">
-            <div>
-              <h3 class="admin-card-title">🛒 Active Shopping Cart</h3>
-              <p style="font-size:.84rem;color:var(--c-text-soft);margin-top:2px;">
-                Live cart session items stored in this browser — displayed in a dedicated card.
-              </p>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span class="status-badge status-active" id="dash-cart-status-badge">0 Items</span>
-              <button class="admin-chip-btn" onclick="switchAdminTab('cart')">Full Cart Manager →</button>
-            </div>
-          </div>
-          <div id="dash-cart-items-preview">
-            <!-- Dynamic separate card view populated by JS -->
           </div>
         </div>
 
@@ -555,9 +535,6 @@
             <h1 class="admin-page-title">Customer Reviews & Ratings</h1>
             <p class="admin-page-sub">Read and manage customer testimonials shown on the store home page.</p>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openAddReviewModal()">
-            ➕ Add Review
-          </button>
         </div>
 
         <div class="admin-offers-grid" id="admin-reviews-grid">
@@ -607,36 +584,6 @@
           </form>
         </div>
       </section>
-
-      <!-- ====================================================
-           7. ACTIVE CART MANAGEMENT (SEPARATE CARD)
-           ==================================================== -->
-      <section id="tab-cart" class="admin-section">
-        <div
-          style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
-          <div>
-            <h1 class="admin-page-title">Active Shopping Cart</h1>
-            <p class="admin-page-sub">Dedicated cart session card. View items, adjust quantities, or convert directly
-              into an order.</p>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-outline btn-sm" onclick="clearCartFromAdmin()">
-              🗑️ Empty Cart
-            </button>
-            <button class="btn btn-gold btn-sm" onclick="addSampleCartItem()">
-              ➕ Add Test Dessert
-            </button>
-          </div>
-        </div>
-
-        <!-- Separate Cart Card -->
-        <div class="admin-card" id="admin-full-cart-card">
-          <div id="admin-full-cart-container">
-            <!-- Dynamic separate card view populated by JS -->
-          </div>
-        </div>
-      </section>
-
     </main>
   </div>
 
@@ -662,6 +609,7 @@
           <div class="form-group">
             <label>Category *</label>
             <select id="prod-cat" required>
+              <option>Select Category</option>
               <option value="Birthday Cakes">Birthday Cakes</option>
               <option value="Brownies">Brownies</option>
               <option value="Cupcakes">Cupcakes</option>
@@ -680,7 +628,7 @@
           </div>
           <div class="form-group full">
             <label>Available Sizes (comma separated)</label>
-            <input type="text" id="prod-sizes" placeholder="500g, 1 kg, 1.5 kg, 2 kg" />
+            <input type="text" id="prod-sizes" placeholder="500g, 1 kg, 1.5 kg, 2 kg">
           </div>
           <div class="form-group full">
             <label>Available Flavours (comma separated)</label>
@@ -693,6 +641,7 @@
           <div class="form-group">
             <label>Image Path / URL</label>
             <select id="prod-img">
+              <option>Select Image</option>
               <option value="images/cake_chocolate.jpg">Chocolate Cake (images/cake_chocolate.jpg)</option>
               <option value="images/cake_birthday.jpg">Birthday Cake (images/cake_birthday.jpg)</option>
               <option value="images/brownies.jpg">Brownies (images/brownies.jpg)</option>
@@ -733,7 +682,7 @@
           </div>
           <div class="form-group">
             <label>Badge Pill Text *</label>
-            <input type="text" id="offer-badge" placeholder="e.g. 20% OFF or BUY 1 GET 1" required />
+            <input type="text" id="offer-badge" placeholder="e.g. 20% OFF" required />
           </div>
           <div class="form-group">
             <label>Target Category</label>
@@ -1079,9 +1028,9 @@
       document.getElementById('prod-name').value = '';
       document.getElementById('prod-price').value = '';
       document.getElementById('prod-desc').value = '';
-      document.getElementById('prod-sizes').value = '500g, 1 kg, 1.5 kg, 2 kg';
-      document.getElementById('prod-flavours').value = 'Dark Chocolate, Milk Chocolate, Vanilla';
-      document.getElementById('prod-prep').value = '24 hours';
+      document.getElementById('prod-sizes').value = '';
+      document.getElementById('prod-flavours').value = '';
+      document.getElementById('prod-prep').value = '';
       document.getElementById('prod-available').checked = true;
       document.getElementById('prod-featured').checked = false;
       document.getElementById('product-admin-modal').classList.remove('hidden');
@@ -1228,7 +1177,7 @@
       document.getElementById('offer-modal-title').textContent = 'Create Running Offer';
       document.getElementById('offer-edit-id').value = '';
       document.getElementById('offer-title').value = '';
-      document.getElementById('offer-badge').value = '15% OFF';
+      document.getElementById('offer-badge').value = '';
       document.getElementById('offer-text').value = '';
       document.getElementById('offer-desc').value = '';
       document.getElementById('offer-active').checked = true;
@@ -1310,19 +1259,6 @@
           <button class="admin-btn admin-btn-del" onclick="deleteReview(${idx})">Delete Review</button>
         </div>
       `).join('');
-    }
-
-    function openAddReviewModal() {
-      const name = prompt('Customer Name:');
-      if (!name) return;
-      const review = prompt('Review text:');
-      if (!review) return;
-
-      if (!appData.testimonials) appData.testimonials = [];
-      appData.testimonials.push({ id: 't' + Date.now(), name, review, rating: 5 });
-      saveAdminData(appData);
-      showToast('Review added!', 'success');
-      renderReviewsView();
     }
 
     function deleteReview(idx) {

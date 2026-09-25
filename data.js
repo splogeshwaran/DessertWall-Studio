@@ -5,7 +5,7 @@
 const BUSINESS = {
   name: "DessertWall Studio",
   tagline: "Every bite made with love",
-  whatsapp: "8122327330",
+  whatsapp: "7667305677",
   instagram: "https://www.instagram.com/dessertwall.studio",
   serviceArea: "Bangalore, Karnataka",
   timings: "Mon - Sat: 9 AM - 8 PM  |  Sun: 10 AM - 6 PM",

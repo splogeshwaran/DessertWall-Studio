@@ -14,8 +14,7 @@
     content="Premium handcrafted desserts – cakes, brownies, cupcakes and more. Freshly baked with love." />
   <meta property="og:image" content="images/hero.jpg" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>" />
+  <link rel="icon" href="images/logo.jpg">
 </head>
 
 <body>
@@ -25,7 +24,7 @@
     <div class="container">
       <div class="nav-inner">
         <a href="index.html" class="nav-logo">
-          <div class="nav-logo-icon">🍰</div>
+        <div class="nav-logo-icon"><img src="images/logo.jpg"></div>
           <div class="nav-logo-text">DessertWall Studio <span>Premium Handcrafted Desserts</span></div>
         </a>
         <div class="nav-links" id="nav-links">
@@ -85,10 +84,6 @@
             View Bestsellers</a>
         </div>
       </div>
-    </div>
-    <div class="hero-scroll">
-      <span>SCROLL</span>
-      <div class="hero-scroll-dot"></div>
     </div>
   </section>
 
@@ -212,7 +207,7 @@
     <div class="container">
       <div class="footer-grid">
         <div>
-          <div class="footer-brand-name">🍰 DessertWall Studio</div>
+          <div class="footer-brand-name">DessertWall Studio</div>
           <p class="footer-brand-sub">Premium handcrafted desserts baked fresh with love in Bangalore.</p>
           <div class="footer-social">
             <a href="https://www.instagram.com/homedessert.studio" target="_blank" rel="noopener"
@@ -495,10 +490,12 @@
 
 
   <!-- MY ORDERS MODAL -->
-  <div id="my-orders-modal" class="hidden" role="dialog" aria-modal="true" style="position:fixed;inset:0;background:rgba(42,20,10,.65);backdrop-filter:blur(6px);z-index:3500;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div id="my-orders-modal" class="hidden" role="dialog" aria-modal="true"
+    style="position:fixed;inset:0;background:rgba(42,20,10,.65);backdrop-filter:blur(6px);z-index:3500;display:flex;align-items:center;justify-content:center;padding:20px;">
     <div class="checkout-box" style="max-width:560px;">
       <div class="checkout-header">
-        <h3 style="font-family:'Playfair Display',serif; color:var(--c-brown); font-size:1.35rem;">📦 My Orders History</h3>
+        <h3 style="font-family:'Playfair Display',serif; color:var(--c-brown); font-size:1.35rem;">📦 My Orders History
+        </h3>
         <button class="cart-close" onclick="closeMyOrdersModal()">&times;</button>
       </div>
       <div class="checkout-body">

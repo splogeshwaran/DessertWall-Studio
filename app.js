@@ -4,7 +4,7 @@
 
 // ------ WhatsApp Helper (kept ONLY for bottom button & contact page) ------
 function openWhatsApp(message) {
-  const num = (appData && appData.business && appData.business.whatsapp) || "918122327330";
+  const num = (appData && appData.business && appData.business.whatsapp) || "7667305677";
   const url = `https://wa.me/${num}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
 }
@@ -489,7 +489,6 @@ function addCurrentProductToCart() {
   addToCart(item);
   closeModal();
   showToast(`Added ${item.name} to cart!`, 'success');
-  openCart();
 }
 
 // =============================================================
@@ -657,7 +656,7 @@ function renderCart() {
   if (!cart.length) {
     container.innerHTML = `
       <div class="cart-empty">
-        <div class="cart-empty-icon">🍰</div>
+        <div class="cart-empty-icon"><img src="images/logo.jpg" style="border-radius: 50px;">  </div>
         <h3>Your Cart is Empty</h3>
         <p>Explore our delicious cakes, brownies and cupcakes to fill it up!</p>
         <button class="btn btn-primary btn-sm" onclick="closeCart(); window.location.href='menu.html'" style="margin-top:16px;">
@@ -688,7 +687,7 @@ function renderCart() {
         <div class="cart-item-info">
           <h4 class="cart-item-title">${item.name}</h4>
           <div class="cart-item-meta">${metaParts.join(' · ')}</div>
-          <div class="cart-item-price">₹${itemTotal.toLocaleString()} <span style="font-weight:400;font-size:.78rem;color:var(--c-text-muted)">(₹${item.price} ea)</span></div>
+          <div class="cart-item-price">₹${itemTotal.toLocaleString()} <span style="font-weight:400;font-size:.78rem;color:var(--c-text-muted)">(₹${item.price})</span></div>
           <div class="cart-item-controls">
             <div class="qty-stepper">
               <button class="qty-btn" onclick="updateCartItemQty(${idx}, -1)">−</button>
