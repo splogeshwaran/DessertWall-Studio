@@ -267,7 +267,7 @@
     <div class="admin-topbar-actions">
       <div class="admin-clock" id="admin-clock"></div>
       <a href="index.html" class="admin-store-link">
-        <span>🌐</span> View Live Website
+        View Live Website
       </a>
     </div>
   </header>
@@ -277,28 +277,25 @@
     <!-- SIDEBAR NAV -->
     <aside class="admin-nav">
       <div class="admin-nav-item active" onclick="switchAdminTab('dashboard')">
-        <span class="icon">📊</span>
         <span>Dashboard</span>
       </div>
       <div class="admin-nav-item" onclick="switchAdminTab('orders')">
-        <span class="icon">📦</span>
         <span>Orders</span>
         <span class="admin-badge" id="pending-orders-badge"></span>
       </div>
       <div class="admin-nav-item" onclick="switchAdminTab('products')">
-        <span class="icon">🍰</span>
         <span>Menu & Catalog</span>
       </div>
       <div class="admin-nav-item" onclick="switchAdminTab('offers')">
-        <span class="icon">🏷️</span>
         <span>Running Offers Bar</span>
       </div>
       <div class="admin-nav-item" onclick="switchAdminTab('reviews')">
-        <span class="icon">⭐</span>
         <span>Customer Reviews</span>
       </div>
+      <div class="admin-nav-item" onclick="switchAdminTab('customers')">
+        <span>Customers & Accounts</span>
+      </div>
       <div class="admin-nav-item" onclick="switchAdminTab('settings')">
-        <span class="icon">⚙️</span>
         <span>Store Settings</span>
       </div>
     </aside>
@@ -341,20 +338,20 @@
         <!-- Quick Actions & Active Offers Ticker Preview -->
         <div class="admin-card">
           <div class="admin-card-header">
-            <h3 class="admin-card-title">⚡ Quick Management Actions</h3>
+            <h3 class="admin-card-title">Quick Management Actions</h3>
           </div>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button class="btn btn-primary btn-sm" onclick="switchAdminTab('orders')">
-              📦 View Incoming Orders
+              View Incoming Orders
             </button>
             <button class="btn btn-pink btn-sm" onclick="openAddProductModal()">
-              ➕ Add New Dessert to Menu
+              Add New Dessert to Menu
             </button>
             <button class="btn btn-gold btn-sm" onclick="openAddOfferModal()">
-              🏷️ Add Running Offer
+              Add Running Offer
             </button>
             <button class="btn btn-outline btn-sm" onclick="window.open('index.html', '_blank')">
-              👁️ Preview Customer Site
+              Preview Customer Site
             </button>
           </div>
         </div>
@@ -363,7 +360,7 @@
         <div class="admin-card">
           <div class="admin-card-header">
             <h3 class="admin-card-title">Recent Incoming Orders</h3>
-            <button class="admin-chip-btn" onclick="switchAdminTab('orders')">View All Orders →</button>
+            <button class="admin-chip-btn" onclick="switchAdminTab('orders')">View All Orders</button>
           </div>
           <div style="overflow-x:auto;">
             <table class="admin-table">
@@ -399,7 +396,7 @@
               preferences.</p>
           </div>
           <input type="text" id="order-search-input" class="admin-search-bar"
-            placeholder="🔍 Search customer, phone, or ID…" oninput="filterOrdersTable()" />
+            placeholder="Search customer, phone, or ID…" oninput="filterOrdersTable()" />
         </div>
 
         <!-- Filter Chips -->
@@ -456,7 +453,7 @@
               recipes.</p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">
-            ➕ Add New Dessert
+            <strong style="font-size: 20px">+</strong> New Dessert
           </button>
         </div>
 
@@ -495,7 +492,7 @@
               bar across the site.</p>
           </div>
           <button class="btn btn-gold btn-sm" onclick="openAddOfferModal()">
-            ➕ Create New Running Offer
+            <strong style="font-size: 20px">+</strong>Create New Running Offer
           </button>
         </div>
 
@@ -508,7 +505,6 @@
           </div>
           <div class="running-offer-bar" style="border-radius:var(--radius-sm); border:1px solid var(--c-pink-border);">
             <div class="offer-tag">
-              <span class="offer-tag-icon">⚡</span>
               <span>SPECIAL OFFERS</span>
             </div>
             <div class="offer-marquee-container">
@@ -543,7 +539,48 @@
       </section>
 
       <!-- ====================================================
-           6. STORE SETTINGS
+           6. CUSTOMER MANAGEMENT (Editable Details)
+           ==================================================== -->
+      <section id="tab-customers" class="admin-section">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:24px;">
+          <div>
+            <h1 class="admin-page-title">Customer Accounts & Details</h1>
+            <p class="admin-page-sub">View and edit registered customer profiles, mobile numbers, passwords and delivery addresses.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAdminAddCustomerModal()">
+            <strong style="font-size: 20px">+</strong>Add Customer
+          </button>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">Registered Customer Database</h3>
+            <input type="text" class="admin-search-bar" id="customer-search-input" placeholder="Search customer name, phone, email..." oninput="filterAdminCustomers()" />
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Mobile Number</th>
+                  <th>Email</th>
+                  <th>Default Address</th>
+                  <th>Password</th>
+                  <th>Orders</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body">
+                <!-- JS populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           7. STORE SETTINGS
            ==================================================== -->
       <section id="tab-settings" class="admin-section">
         <h1 class="admin-page-title">Studio Business Settings</h1>
@@ -729,6 +766,47 @@
     </div>
   </div>
 
+  <!-- Edit Customer Modal (Admin) -->
+  <div id="admin-customer-modal" class="hidden"
+    style="position:fixed;inset:0;background:rgba(42,20,10,.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div class="checkout-box" style="max-width:540px;">
+      <div class="checkout-header">
+        <h3 class="admin-card-title" id="admin-customer-modal-title">Edit Customer Details</h3>
+        <button class="cart-close" onclick="closeAdminCustomerModal()">&times;</button>
+      </div>
+      <div class="checkout-body">
+        <form id="admin-customer-form" onsubmit="saveAdminCustomerForm(event)" class="admin-form-grid">
+          <input type="hidden" id="admin-cust-id" />
+          <div class="form-group full">
+            <label>Customer Full Name *</label>
+            <input type="text" id="admin-cust-name" required placeholder="e.g. Priya Sharma" />
+          </div>
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" id="admin-cust-phone" required placeholder="10-digit mobile" />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="admin-cust-email" placeholder="name@example.com" />
+          </div>
+          <div class="form-group full">
+            <label>Default Delivery Address</label>
+            <textarea id="admin-cust-address" rows="2" placeholder="Full address in Bangalore..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Password (enter new password to change)</label>
+            <input type="text" id="admin-cust-password" placeholder="e.g. password123" />
+            <div style="font-size:.74rem;color:var(--c-text-muted);margin-top:4px;">🔑 Leave untouched or enter new password to reset for user</div>
+          </div>
+          <div class="form-actions full" style="display:flex;gap:12px;margin-top:12px;">
+            <button type="button" class="btn btn-outline" onclick="closeAdminCustomerModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Customer Details</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
   <!-- Shared Data & Logic -->
@@ -757,7 +835,7 @@
       if (targetSec) targetSec.classList.add('active');
 
       const navItems = document.querySelectorAll('.admin-nav-item');
-      const tabNames = ['dashboard', 'orders', 'products', 'offers', 'reviews', 'settings', 'cart'];
+      const tabNames = ['dashboard', 'orders', 'products', 'offers', 'reviews', 'customers', 'settings'];
       const idx = tabNames.indexOf(tabName);
       if (idx > -1 && navItems[idx]) navItems[idx].classList.add('active');
 
@@ -766,8 +844,8 @@
       if (tabName === 'products') renderProductsTable();
       if (tabName === 'offers') renderOffersView();
       if (tabName === 'reviews') renderReviewsView();
+      if (tabName === 'customers') renderCustomersTable();
       if (tabName === 'settings') loadSettingsForm();
-      if (tabName === 'cart') renderAdminCartView();
     }
 
     // ====================================================
@@ -874,6 +952,12 @@
           return s;
         }).join('<br>');
 
+        const cancelInfo = o.status === 'Cancelled' && (o.cancelledBy || o.cancelReason) ? `
+          <div class="badge-cancelled-info">By: ${o.cancelledBy || 'Customer'}</div>
+          ${o.cancelReason ? `<div class="admin-cancel-reason-note">"${o.cancelReason}"</div>` : ''}
+          ${o.cancelledAt ? `<div style="font-size:.71rem;color:var(--c-text-muted);margin-top:2px;">${o.cancelledAt}</div>` : ''}
+        ` : '';
+
         return `
           <tr>
             <td>
@@ -888,14 +972,17 @@
             <td style="font-size:.84rem;max-width:320px;">${itemsList}</td>
             <td style="font-size:.82rem;">
               <span class="status-badge" style="background:var(--c-pink-light);color:var(--c-brown);margin-bottom:4px;">
-                ${o.customer.deliveryType === 'delivery' ? '🚚 Delivery' : '🏪 Pickup'}
+                ${o.customer.deliveryType === 'delivery' ? 'Delivery' : 'Pickup'}
               </span>
               <div>${o.customer.address}</div>
               <div style="color:var(--c-text-muted);font-size:.75rem;margin-top:2px;">Slot: ${o.customer.preferredDate || 'ASAP'} (${o.customer.timeSlot || ''})</div>
             </td>
             <td><span style="font-size:.82rem;font-weight:600;">${o.paymentMethod || 'UPI'}</span></td>
             <td><strong>₹${o.total.toLocaleString()}</strong></td>
-            <td><span class="status-badge ${statusClass}">${o.status}</span></td>
+            <td>
+              <span class="status-badge ${statusClass}">${o.status}</span>
+              ${cancelInfo}
+            </td>
             <td>
               <select class="admin-select-status" onchange="handleStatusChange('${o.id}', this.value)">
                 <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -911,6 +998,7 @@
         `;
       }).join('');
     }
+
 
     function filterOrdersTable() {
       renderOrdersTable();
@@ -1124,14 +1212,14 @@
           <div class="offer-item">
             <span class="offer-pill">${o.badge || 'OFFER'}</span>
             <span class="offer-text">${o.discountText || o.title}</span>
-            <span class="offer-cta">${o.linkText || 'Explore'} →</span>
+            <span class="offer-cta">${o.linkText || 'Explore'}</span>
           </div>
           <span class="offer-sep">•</span>
         `).join('') + active.map(o => `
           <div class="offer-item">
             <span class="offer-pill">${o.badge || 'OFFER'}</span>
             <span class="offer-text">${o.discountText || o.title}</span>
-            <span class="offer-cta">${o.linkText || 'Explore'} →</span>
+            <span class="offer-cta">${o.linkText || 'Explore'}</span>
           </div>
           <span class="offer-sep">•</span>
         `).join('');
@@ -1297,6 +1385,170 @@
       showToast('Store settings saved successfully!', 'success');
     }
 
+    // ====================================================
+    // 7. Customers Management Logic (Editable Details)
+    // ====================================================
+    let customerSearchTerm = '';
+
+    function filterAdminCustomers() {
+      customerSearchTerm = (document.getElementById('customer-search-input')?.value || '').toLowerCase().trim();
+      renderCustomersTable();
+    }
+
+    function renderCustomersTable() {
+      const tbody = document.getElementById('customers-table-body');
+      if (!tbody) return;
+
+      const users = typeof getRegisteredUsers === 'function' ? getRegisteredUsers() : [];
+      const orders = typeof getOrders === 'function' ? getOrders() : [];
+
+      const filtered = users.filter(u => {
+        if (!customerSearchTerm) return true;
+        return (u.name && u.name.toLowerCase().includes(customerSearchTerm)) ||
+               (u.phone && u.phone.includes(customerSearchTerm)) ||
+               (u.email && u.email.toLowerCase().includes(customerSearchTerm)) ||
+               (u.address && u.address.toLowerCase().includes(customerSearchTerm));
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--c-text-muted);">No customers found matching "${customerSearchTerm}"</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(u => {
+        // Count customer orders
+        const userOrders = orders.filter(o => 
+          (o.customer && o.customer.phone && o.customer.phone.includes(u.phone)) ||
+          (o.customer && o.customer.name && o.customer.name.toLowerCase() === u.name.toLowerCase())
+        );
+        const totalSpent = userOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        const initial = (u.name || 'U').charAt(0).toUpperCase();
+
+        return `
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="user-avatar-circle" style="width:32px;height:32px;font-size:.85rem;background:var(--c-brown);">${initial}</div>
+                <div>
+                  <strong style="color:var(--c-brown);">${u.name}</strong>
+                  <div style="font-size:.72rem;color:var(--c-text-muted);">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : 'Registered'}</div>
+                </div>
+              </div>
+            </td>
+            <td><strong>${u.phone}</strong></td>
+            <td>${u.email || '<span style="color:var(--c-text-muted);">None</span>'}</td>
+            <td style="max-width:240px;font-size:.84rem;line-height:1.4;">${u.address || '<span style="color:var(--c-text-muted);">No address set</span>'}</td>
+            <td><code style="background:var(--c-cream);padding:3px 6px;border-radius:4px;font-size:.8rem;color:var(--c-brown);">${u.password || 'password123'}</code></td>
+            <td>
+              <span class="status-badge status-confirmed">${userOrders.length} orders</span>
+              <div style="font-size:.74rem;color:var(--c-text-muted);margin-top:2px;">₹${totalSpent.toLocaleString()} spent</div>
+            </td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <button class="admin-chip-btn" onclick="openEditCustomerModal('${u.id || u.phone}')"> <img src="images/edit.svg" style="width:25px;height:25px"></button>
+                <button class="admin-chip-btn" onclick="deleteCustomer('${u.id || u.phone}')" style="color:#c33;"><img src="images/trash.svg" style="width:25px;height:25px;"></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openEditCustomerModal(userId) {
+      const users = getRegisteredUsers();
+      const u = users.find(x => (x.id && x.id === userId) || x.phone === userId);
+      if (!u) return;
+
+      document.getElementById('admin-customer-modal-title').textContent = `Edit Customer: ${u.name}`;
+      document.getElementById('admin-cust-id').value = u.id || u.phone;
+      document.getElementById('admin-cust-name').value = u.name || '';
+      document.getElementById('admin-cust-phone').value = u.phone || '';
+      document.getElementById('admin-cust-email').value = u.email || '';
+      document.getElementById('admin-cust-address').value = u.address || '';
+      document.getElementById('admin-cust-password').value = u.password || '';
+
+      document.getElementById('admin-customer-modal').classList.remove('hidden');
+    }
+
+    function openAdminAddCustomerModal() {
+      document.getElementById('admin-customer-modal-title').textContent = 'Add New Customer';
+      document.getElementById('admin-cust-id').value = '';
+      document.getElementById('admin-cust-name').value = '';
+      document.getElementById('admin-cust-phone').value = '';
+      document.getElementById('admin-cust-email').value = '';
+      document.getElementById('admin-cust-address').value = '';
+      document.getElementById('admin-cust-password').value = 'password123';
+
+      document.getElementById('admin-customer-modal').classList.remove('hidden');
+    }
+
+    function closeAdminCustomerModal() {
+      document.getElementById('admin-customer-modal').classList.add('hidden');
+    }
+
+    function saveAdminCustomerForm(e) {
+      e.preventDefault();
+      const custId = document.getElementById('admin-cust-id').value;
+      const name = document.getElementById('admin-cust-name').value.trim();
+      const phone = document.getElementById('admin-cust-phone').value.trim();
+      const email = document.getElementById('admin-cust-email').value.trim();
+      const address = document.getElementById('admin-cust-address').value.trim();
+      const password = document.getElementById('admin-cust-password').value.trim();
+
+      if (!name || !phone) {
+        showToast('Name and phone are required', 'error');
+        return;
+      }
+
+      const users = getRegisteredUsers();
+
+      if (custId) {
+        // Edit existing
+        const idx = users.findIndex(u => (u.id && u.id === custId) || u.phone === custId);
+        if (idx >= 0) {
+          users[idx].name = name;
+          users[idx].phone = phone;
+          users[idx].email = email;
+          users[idx].address = address;
+          if (password) users[idx].password = password;
+
+          // If current logged in user is this one, sync
+          const curr = getCurrentUser();
+          if (curr && ((curr.id && curr.id === custId) || curr.phone === custId)) {
+            setCurrentUser(users[idx]);
+          }
+          showToast(`Customer details for ${name} updated!`, 'success');
+        }
+      } else {
+        // Add new
+        const newUser = {
+          id: 'usr_' + Date.now(),
+          name,
+          phone,
+          email,
+          address,
+          password: password || 'password123',
+          createdAt: new Date().toISOString()
+        };
+        users.push(newUser);
+        showToast(`Customer ${name} added successfully!`, 'success');
+      }
+
+      saveRegisteredUsers(users);
+      closeAdminCustomerModal();
+      renderCustomersTable();
+    }
+
+    function deleteCustomer(userId) {
+      if (confirm('Are you sure you want to remove this customer account?')) {
+        let users = getRegisteredUsers();
+        users = users.filter(u => (u.id && u.id !== userId) && u.phone !== userId);
+        saveRegisteredUsers(users);
+        showToast('Customer account removed', 'success');
+        renderCustomersTable();
+      }
+    }
+
     function resetToDefaults() {
       if (confirm('Reset catalog, orders, and offers to factory defaults?')) {
         localStorage.removeItem('hds_admin_data');
@@ -1308,6 +1560,30 @@
     // Initialize on load
     document.addEventListener('DOMContentLoaded', () => {
       renderDashboard();
+
+      // ── Real-time sync: auto-refresh admin when user-side changes happen ──
+      if (typeof subscribeToOrderUpdates === 'function') {
+        subscribeToOrderUpdates((msg) => {
+          const type = msg && msg.type;
+          if (['ORDER_PLACED', 'STATUS_UPDATED', 'ORDER_CANCELLED', 'STORAGE_CHANGE'].includes(type)) {
+            // Determine current active tab
+            const ordersSection = document.getElementById('tab-orders');
+            const dashSection = document.getElementById('tab-dashboard');
+            const isOrdersActive = ordersSection && ordersSection.classList.contains('active');
+            const isDashActive = dashSection && dashSection.classList.contains('active');
+
+            if (isDashActive) renderDashboard();
+            if (isOrdersActive) { renderDashboard(); renderOrdersTable(); }
+
+            if (type === 'ORDER_CANCELLED' && msg.payload) {
+              const p = msg.payload;
+              showToast(`Order ${p.orderId} cancelled by ${p.cancelledBy || 'Customer'}: ${p.reason || ''}`, 'error');
+            } else if (type === 'ORDER_PLACED' && msg.payload && msg.payload.order) {
+              showToast(`New order placed: ${msg.payload.orderId}`, 'success');
+            }
+          }
+        });
+      }
     });
 
   </script>

@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 //  DessertWall Studio - Central Data Store
 // ============================================================
 
@@ -7,7 +7,7 @@ const BUSINESS = {
   tagline: "Every bite made with love",
   whatsapp: "7667305677",
   instagram: "https://www.instagram.com/dessertwall.studio",
-  serviceArea: "Bangalore, Karnataka",
+  serviceArea: "Chennai, Tamil Nadu",
   timings: "Mon - Sat: 9 AM - 8 PM  |  Sun: 10 AM - 6 PM",
   contactText: "We love hearing from you! Reach out on WhatsApp for orders and enquiries.",
   logo: "desserts"
@@ -144,7 +144,6 @@ const OFFERS = [
     id: "o1",
     title: "Festive Season Special",
     badge: "15% OFF",
-    icon: "🎉",
     description: "Celebrate the festive season with delicious treats! Get 15% off on all cake orders above Rs.1,000.",
     discountText: "15% OFF on cake orders above ₹1,000 • Code: SWEET15",
     linkText: "Order Cakes",
@@ -156,7 +155,6 @@ const OFFERS = [
     id: "o2",
     title: "Birthday Month Special",
     badge: "FREE TOPPER",
-    icon: "🎂",
     description: "Celebrating your birthday this month? Get a complimentary personalised gold topper on any custom or birthday cake.",
     discountText: "Free custom acrylic topper with every Birthday Cake!",
     linkText: "View Birthday Cakes",
@@ -168,7 +166,6 @@ const OFFERS = [
     id: "o3",
     title: "Free Express Delivery",
     badge: "FREE DELIVERY",
-    icon: "🚚",
     description: "Enjoy zero delivery charges across Bangalore on all orders above ₹499.",
     discountText: "Zero Delivery Fee on all gourmet boxes & cakes above ₹499",
     linkText: "Browse Menu",
@@ -180,7 +177,6 @@ const OFFERS = [
     id: "o4",
     title: "Weekend Sweet Box Deal",
     badge: "BUY & SAVE",
-    icon: "🧁",
     description: "Order any Box of 6 Cupcakes and get 2 Fudgy Walnut Brownies absolutely free.",
     discountText: "Weekend Special: Get 2 Free Walnut Brownies with any 6 Cupcakes Box!",
     linkText: "Order Cupcakes",
@@ -195,9 +191,9 @@ const SAMPLE_ORDERS = [
     id: "ORD-2026-101",
     date: "2026-09-24 14:15",
     customer: {
-      name: "Ananya Deshmukh",
+      name: "Priya Sharma",
       phone: "+91 98450 12345",
-      email: "ananya.d@example.com",
+      email: "priya.sharma@example.com",
       address: "Flat 402, Green Glen Layout, Bellandur, Bangalore 560103",
       deliveryType: "delivery",
       preferredDate: "2026-09-26",
@@ -227,9 +223,9 @@ const SAMPLE_ORDERS = [
     id: "ORD-2026-102",
     date: "2026-09-24 11:30",
     customer: {
-      name: "Vikram Sengupta",
+      name: "Arjun Mehta",
       phone: "+91 97412 88990",
-      email: "vikram.s@example.com",
+      email: "arjun.m@example.com",
       address: "Direct Studio Pickup",
       deliveryType: "pickup",
       preferredDate: "2026-09-25",
@@ -363,7 +359,59 @@ if (!appData) {
   saveAdminData(appData);
 }
 
-// -- Orders Storage --
+// -- Orders Storage & Real-Time Sync --
+const ORDERS_CHANNEL_NAME = 'hds_orders_channel';
+let ordersBroadcastChannel = null;
+try {
+  if (typeof BroadcastChannel !== 'undefined') {
+    ordersBroadcastChannel = new BroadcastChannel(ORDERS_CHANNEL_NAME);
+  }
+} catch (e) {
+  console.warn('BroadcastChannel unavailable', e);
+}
+
+function notifyOrdersUpdated(actionType, payload) {
+  const detail = { type: actionType, payload, timestamp: Date.now() };
+  if (ordersBroadcastChannel) {
+    try {
+      ordersBroadcastChannel.postMessage(detail);
+    } catch (e) {}
+  }
+  try {
+    window.dispatchEvent(new CustomEvent('hds:orders-updated', { detail }));
+  } catch (e) {}
+}
+
+function subscribeToOrderUpdates(callback) {
+  if (typeof callback !== 'function') return () => {};
+
+  const handleBroadcast = (event) => {
+    if (event && event.data) callback(event.data);
+  };
+  const handleCustom = (event) => {
+    if (event && event.detail) callback(event.detail);
+  };
+  const handleStorage = (event) => {
+    if (event.key === 'hds_orders') {
+      callback({ type: 'STORAGE_CHANGE', payload: { key: 'hds_orders' }, timestamp: Date.now() });
+    }
+  };
+
+  if (ordersBroadcastChannel) {
+    ordersBroadcastChannel.addEventListener('message', handleBroadcast);
+  }
+  window.addEventListener('hds:orders-updated', handleCustom);
+  window.addEventListener('storage', handleStorage);
+
+  return () => {
+    if (ordersBroadcastChannel) {
+      ordersBroadcastChannel.removeEventListener('message', handleBroadcast);
+    }
+    window.removeEventListener('hds:orders-updated', handleCustom);
+    window.removeEventListener('storage', handleStorage);
+  };
+}
+
 function getOrders() {
   try {
     const s = localStorage.getItem("hds_orders");
@@ -382,17 +430,81 @@ function addOrder(orderData) {
   const orders = getOrders();
   orders.unshift(orderData);
   saveOrders(orders);
+  notifyOrdersUpdated('ORDER_PLACED', { order: orderData, orderId: orderData.id });
   return orderData;
 }
 
-function updateOrderStatus(orderId, newStatus) {
+function updateOrderStatus(orderId, newStatus, extraInfo = {}) {
   const orders = getOrders();
   const order = orders.find(o => o.id === orderId);
   if (order) {
     order.status = newStatus;
+    order.lastUpdated = new Date().toISOString();
+    if (extraInfo.cancelledBy) order.cancelledBy = extraInfo.cancelledBy;
+    if (extraInfo.cancelReason) order.cancelReason = extraInfo.cancelReason;
+    if (extraInfo.cancelledAt) order.cancelledAt = extraInfo.cancelledAt;
     saveOrders(orders);
+    notifyOrdersUpdated('STATUS_UPDATED', { orderId, newStatus, order, ...extraInfo });
     return true;
   }
   return false;
 }
+
+function cancelOrder(orderId, reason = 'Cancelled by customer', cancelledBy = 'Customer') {
+  const orders = getOrders();
+  const order = orders.find(o => o.id === orderId);
+  if (!order) {
+    return { success: false, message: 'Order not found' };
+  }
+
+  if (order.status === 'Completed') {
+    return { success: false, message: 'Delivered orders cannot be cancelled.' };
+  }
+  if (order.status === 'Cancelled') {
+    return { success: false, message: 'This order is already cancelled.' };
+  }
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }) + ' at ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  order.status = 'Cancelled';
+  order.cancelledBy = cancelledBy;
+  order.cancelReason = reason || 'Customer requested cancellation';
+  order.cancelledAt = dateStr;
+  order.lastUpdated = now.toISOString();
+
+  saveOrders(orders);
+
+  notifyOrdersUpdated('ORDER_CANCELLED', {
+    orderId,
+    order,
+    cancelledBy,
+    reason: order.cancelReason,
+    cancelledAt: order.cancelledAt
+  });
+
+  return { success: true, order };
+}
+
+function findOrderByIdOrPhone(query) {
+  if (!query) return [];
+  const q = String(query).trim().toLowerCase();
+  const cleanQPhone = q.replace(/[^0-9]/g, '');
+  const orders = getOrders();
+  return orders.filter(o => {
+    if (!o) return false;
+    const orderId = (o.id || '').toLowerCase();
+    const matchId = orderId === q || orderId.includes(q);
+    const orderPhone = (o.customer && o.customer.phone ? String(o.customer.phone).replace(/[^0-9]/g, '') : '');
+    const matchPhone = cleanQPhone.length >= 4 && orderPhone.includes(cleanQPhone);
+    const matchEmail = o.customer && o.customer.email && o.customer.email.toLowerCase().includes(q);
+    const matchName = o.customer && o.customer.name && o.customer.name.toLowerCase().includes(q);
+    return matchId || matchPhone || matchEmail || matchName;
+  });
+}
+
 
