@@ -262,6 +262,10 @@ h3 {
   justify-content: center;
 }
 
+#btn-write-review{
+  height: 40px;
+}
+
 /* ---------- Running Offer Bar (Car) Below Navbar ---------- */
 .running-offer-bar {
   background: linear-gradient(90deg, #FDECF0 0%, #FFF5F7 50%, #FDECF0 100%);
@@ -764,23 +768,24 @@ h3 {
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--c-gold-light);
+  color: #FFD6D1;
   margin-bottom: 20px;
 }
 
 .hero-title {
   font-size: clamp(2.4rem, 5.5vw, 4rem);
   margin-bottom: 18px;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, .3);
-  color: pink
+  text-shadow: 0 6px 16px rgb(0, 0, 0);
+  color: #EDE8D0;
 }
 
 .hero-sub {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, .85);
+  color: #F5F2E9;
   margin-bottom: 36px;
   max-width: 520px;
   line-height: 1.7;
+  text-shadow: 0 6px 16px rgb(0, 0, 0);
 }
 
 .hero-actions {
@@ -796,13 +801,30 @@ h3 {
   gap: 24px;
 }
 
+.believe-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+    gap: 24px;
+    justify-content: center;
+}
+
+.believe-grid > :nth-child(5) {
+    grid-column: 2;
+}
+
+.believe-grid > :nth-child(6) {
+    grid-column: 3;
+}
+
 .why-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-md);
-  padding: 28px 24px;
+  padding: 0px 24px;
+  padding-bottom: 24px;
   text-align: center;
   transition: all var(--transition);
+  justify-content: center;
 }
 
 .why-card:hover {
@@ -854,9 +876,14 @@ h3 {
 
 /* ---------- Product Cards ---------- */
 .products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 350px));
+    gap: 28px;
+    justify-content: center;
+}
+
+.products-grid > :nth-child(4) {
+    grid-column: 1;
 }
 
 .product-card {
@@ -1158,24 +1185,106 @@ h3 {
   }
 }
 
-/* ---------- Testimonials ---------- */
+/* ---------- Testimonials / Review Carousel (80-85% width, 2 at a time, loop) ---------- */
+.reviews-section-container {
+  width: 84vw;
+  max-width: 85vw;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.reviews-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.review-nav-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-gold);
+  background: var(--c-surface);
+  color: var(--c-brown);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(92, 45, 23, 0.12);
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  z-index: 5;
+  outline: none;
+}
+
+.review-nav-btn:hover {
+  background: var(--c-gold);
+  color: #fff;
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(184, 134, 11, 0.35);
+}
+
+.review-nav-btn:active {
+  transform: scale(0.94);
+}
+
+.testimonials-scroll-container {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 4px;
+  cursor: grab;
+  scrollbar-width: none; /* hide Firefox scrollbar */
+  box-sizing: border-box;
+}
+
+.testimonials-scroll-container.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+
+/* Hide webkit scrollbar — navigation via < > buttons */
+.testimonials-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
 .testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 20px;
+  align-items: stretch;
+  width: max-content;
+  box-sizing: border-box;
 }
 
 .testimonial-card {
+  box-sizing: border-box;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-md);
   padding: 28px 24px;
-  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  scroll-snap-align: start;
 }
 
 .testimonial-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
+  border-color: var(--c-gold);
 }
 
 .test-stars {
@@ -1191,12 +1300,64 @@ h3 {
   line-height: 1.7;
   margin-bottom: 16px;
   font-style: italic;
+  flex-grow: 1;
 }
 
 .test-name {
   font-weight: 600;
   color: var(--c-brown);
   font-size: .9rem;
+}
+
+@media (max-width: 640px) {
+  .reviews-section-container {
+    width: 85vw;
+    max-width: 85vw;
+  }
+  .reviews-carousel-wrapper {
+    gap: 8px;
+  }
+  .review-nav-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1.05rem;
+  }
+  .testimonials-grid {
+    gap: 12px;
+  }
+  .testimonial-card {
+    padding: 16px 12px;
+    border-radius: var(--radius-sm);
+  }
+  .test-review {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .test-stars {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .test-name {
+    font-size: 0.78rem;
+  }
+}
+
+/* ---------- Review Star Buttons ---------- */
+.review-star-btn {
+  font-size: 1.8rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ddd;
+  transition: color .18s, transform .15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.review-star-btn.active {
+  color: gold;
+  transform: scale(1.15);
 }
 
 /* ---------- Product Detail / Modal ---------- */
@@ -2223,7 +2384,8 @@ input[type=number]::-webkit-outer-spin-button {
   border: 1px solid #C5CAE9;
 }
 
-.status-completed {
+.status-completed,
+.status-delivered {
   background: #E8F5E9;
   color: #2E7D32;
   border: 1px solid #C8E6C9;
@@ -2429,6 +2591,7 @@ input[type=number]::-webkit-outer-spin-button {
   align-items: center;
   gap: 7px;
   padding: 8px 16px;
+  height: 40px;
   border-radius: 50px;
   background: var(--c-surface);
   border: 1.5px solid var(--c-border);
@@ -4355,19 +4518,6 @@ body.admin-page #floating-cart-card,
   margin-top: 20px;
 }
 
-/* Admin Table Enhancements for Cancellations */
-.badge-cancelled-info {
-  display: inline-block;
-  margin-top: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: #FFEBEE;
-  color: #C62828;
-  border: 1px solid #FFCDD2;
-}
-
 .admin-cancel-reason-note {
   font-size: 0.73rem;
   color: #8C634F;
@@ -4396,3 +4546,7 @@ body.admin-page #floating-cart-card,
     justify-content: center;
   }
 }
+
+.starPick{margin:4px 0 6px}
+.starPick button{border:0;background:none;font-size:1.9rem;color:#ddd;padding:0 2px;line-height:1}
+.starPick button.on{color:#f5a623}

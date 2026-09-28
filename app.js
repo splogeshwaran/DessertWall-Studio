@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 //  DessertWall Studio — Shared Application Logic
 // =============================================================
 
@@ -65,13 +65,14 @@ function initRunningOfferBar() {
     `).join('');
   };
 
-  const html = buildItemsHtml(activeOffers) + buildItemsHtml(activeOffers);
+  const html = buildItemsHtml(activeOffers) + buildItemsHtml(activeOffers) + buildItemsHtml(activeOffers) + buildItemsHtml(activeOffers) + buildItemsHtml(activeOffers);
   track.innerHTML = html;
 }
 
 // =============================================================
 //  User Authentication System (Login / Sign-up / Profile)
 // =============================================================
+
 const DEFAULT_USERS = [
   {
     id: "usr_1",
@@ -79,7 +80,7 @@ const DEFAULT_USERS = [
     phone: "9845012345",
     email: "priya.sharma@example.com",
     password: "password123",
-    address: "Flat 402, Green Glen Layout, Bellandur, Bangalore 560103",
+    address: "Flat 402, Green Glen Layout, Bellandur, Chennai 560103",
     createdAt: "2026-01-15T10:00:00.000Z"
   },
   {
@@ -88,7 +89,7 @@ const DEFAULT_USERS = [
     phone: "9741288990",
     email: "arjun.m@example.com",
     password: "password123",
-    address: "100ft Road, HAL 2nd Stage, Indiranagar, Bangalore 560038",
+    address: "100ft Road, HAL 2nd Stage, Indiranagar, Chennai 560038",
     createdAt: "2026-02-10T14:30:00.000Z"
   }
 ];
@@ -208,7 +209,7 @@ function updateUserAuthUI() {
   } else {
     authContainer.innerHTML = `
       <button class="nav-user-btn" onclick="openAuthModal('signin')" aria-label="Sign In">
-        <span>👤</span> <span>Sign In</span>
+        Sign In
       </button>
     `;
   }
@@ -355,7 +356,7 @@ function ensureModalsExist() {
               </div>
               <div class="auth-form-group">
                 <label>Default Delivery Address (Optional)</label>
-                <textarea id="signup-address" placeholder="Flat, Building, Area, Landmark, Bangalore..." rows="2" autocomplete="street-address"></textarea>
+                <textarea id="signup-address" placeholder="Flat, Building, Area, Landmark, Chennai..." rows="2" autocomplete="street-address"></textarea>
               </div>
               <button type="submit" class="btn btn-primary btn-block" style="width:100%;justify-content:center;margin-top:10px;">
                 Create Account & Sign In
@@ -406,7 +407,7 @@ function ensureModalsExist() {
             </div>
             <div class="auth-form-group">
               <label>Default Delivery Address</label>
-              <textarea id="profile-address" rows="2" placeholder="Apartment / Villa, Street, Locality, Bangalore..."></textarea>
+              <textarea id="profile-address" rows="2" placeholder="Apartment / Villa, Street, Locality, Chennai..."></textarea>
             </div>
 
             <!-- Optional Password Update -->
@@ -827,18 +828,23 @@ function openMyOrdersModal() {
           <div style="font-size:2.5rem;margin-bottom:8px;"><img src="images/orders.svg"></div>
           <h4>No Orders Found Yet</h4>
           <p style="font-size:.85rem;margin-top:4px;">You haven't placed an order with this account yet.</p>
-          <button class="btn btn-primary btn-sm" onclick="closeMyOrdersModal(); window.location.href='menu.html'" style="margin-top:14px;">Browse Menu</button>
+          <button class="btn btn-primary btn-sm" onclick="closeMyOrdersModal(); window.location.href='menu.html'" style="margin-top:14px;">Browse Desserts</button>
         </div>
       `;
     } else {
       container.innerHTML = userOrders.map(o => {
         const statusClass = `status-${(o.status || 'Pending').toLowerCase().replace(/\s+/g, '-')}`;
-        const canCancel = !['Cancelled', 'Completed'].includes(o.status);
+        const canCancel = !['Cancelled', 'Completed', 'Delivered', 'Preparing', 'Ready', 'Out for Delivery', 'Out'].includes(o.status);
+        const isPreparing = ['Preparing', 'Ready', 'Out for Delivery', 'Out'].includes(o.status);
         const cancelledInfo = o.status === 'Cancelled' ? `
           <div style="background:#FFF5F5;border:1px solid #FFCDD2;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:.78rem;">
             <span style="color:#C62828;font-weight:700;">Cancelled</span>
             ${o.cancelledAt ? `<div style="color:#9E1515;margin-top:2px;">${o.cancelledAt}</div>` : ''}
             ${o.cancelReason ? `<div style="color:#7F1D1D;margin-top:2px;font-style:italic;">"${o.cancelReason}"</div>` : ''}
+          </div>` : '';
+        const preparingNotice = isPreparing ? `
+          <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:.78rem;display:flex;align-items:center;gap:6px;">
+            <span style="color:#795548;font-weight:600;">Your order is already being prepared — cancellation is no longer possible.</span>
           </div>` : '';
         return `
           <div class="customer-order-card" id="my-order-card-${o.id}">
@@ -858,6 +864,7 @@ function openMyOrdersModal() {
               `).join('')}
             </div>
             ${cancelledInfo}
+            ${preparingNotice}
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--c-border);padding-top:8px;margin-top:8px;font-size:.85rem;flex-wrap:wrap;gap:8px;">
               <span>Mode: <strong>${(o.customer && o.customer.deliveryType === 'delivery') ? 'Home Delivery' : 'Studio Pickup'}</strong></span>
               <span style="font-weight:700;color:var(--c-brown);font-size:1rem;">Total: ₹${(o.total || 0).toLocaleString()}</span>
@@ -895,12 +902,12 @@ function closeMyOrdersModal() {
 //  TRACK ORDER MODAL
 // =============================================================
 const ORDER_STATUS_STEPS = [
-  { key: 'Pending',          label: 'Order Placed',        icon: '📝', desc: 'Your order has been received and is awaiting confirmation.' },
-  { key: 'Confirmed',        label: 'Order Confirmed',      icon: '👩‍🍳', desc: 'Our baker has confirmed your order.' },
-  { key: 'Preparing',        label: 'Being Prepared',      icon: '🧁', desc: 'Your desserts are being freshly baked and decorated.' },
-  { key: 'Ready',            label: 'Ready for Dispatch',   icon: '📦', desc: 'Packed and ready for delivery or pickup.' },
-  { key: 'Out for Delivery', label: 'Out for Delivery',     icon: '🛵', desc: 'On the way to your address right now!' },
-  { key: 'Completed',        label: 'Delivered!',           icon: '🎉', desc: 'Order completed. Thank you for choosing DessertWall Studio!' }
+  { key: 'Pending', label: 'Order Placed', icon: '📝', desc: 'Your order has been received and is awaiting confirmation.' },
+  { key: 'Confirmed', label: 'Order Confirmed', icon: '👩‍🍳', desc: 'Our baker has confirmed your order.' },
+  { key: 'Preparing', label: 'Being Prepared', icon: '🧁', desc: 'Your desserts are being freshly baked and decorated.' },
+  { key: 'Ready', label: 'Ready for Dispatch', icon: '📦', desc: 'Packed and ready for delivery or pickup.' },
+  { key: 'Out for Delivery', label: 'Out for Delivery', icon: '🛵', desc: 'On the way to your address right now!' },
+  { key: 'Delivered', label: 'Delivered!', icon: '🎉', desc: 'Order delivered. Thank you for choosing DessertWall Studio!' }
 ];
 
 let _trackOrderUnsubscribe = null;
@@ -1010,8 +1017,8 @@ function renderTrackSearchResults(orders) {
       ${orders.length} order${orders.length > 1 ? 's' : ''} found — select to track:
     </div>
     ${orders.map(o => {
-      const sc = `status-${o.status.toLowerCase().replace(/\s+/g, '-')}`;
-      return `
+    const sc = `status-${o.status.toLowerCase().replace(/\s+/g, '-')}`;
+    return `
         <div class="track-card-overview" onclick="_currentTrackedOrderId='${o.id}'; renderTrackOrderDetails(getOrders().find(x=>x.id==='${o.id}'))" style="cursor:pointer;margin-bottom:10px;">
           <div class="track-card-top">
             <div class="track-order-id-label">${o.id}</div>
@@ -1019,7 +1026,7 @@ function renderTrackSearchResults(orders) {
           </div>
           <div style="font-size:.82rem;color:var(--c-text-muted);">📅 ${o.date} &nbsp;|&nbsp; ${o.customer.name} &nbsp;|&nbsp; ₹${o.total.toLocaleString()}</div>
         </div>`;
-    }).join('')}`;
+  }).join('')}`;
 }
 
 function renderTrackOrderDetails(order) {
@@ -1028,11 +1035,16 @@ function renderTrackOrderDetails(order) {
 
   const statusClass = `status-${order.status.toLowerCase().replace(/\s+/g, '-')}`;
   const isCancelled = order.status === 'Cancelled';
-  const isCompleted = order.status === 'Completed';
-  const canCancel = !isCancelled && !isCompleted;
+  const isDelivered = order.status === 'Delivered' || order.status === 'Completed';
+  const isPreparing = ['Preparing', 'Ready', 'Out for Delivery', 'Out'].includes(order.status);
+  const canCancel = !isCancelled && !isDelivered && !isPreparing;
 
   // Build stepper
-  const currentStepIdx = ORDER_STATUS_STEPS.findIndex(s => s.key === order.status);
+  const currentStepIdx = ORDER_STATUS_STEPS.findIndex(s =>
+    s.key === order.status ||
+    (s.key === 'Delivered' && (order.status === 'Delivered' || order.status === 'Completed')) ||
+    (s.key === 'Out for Delivery' && order.status === 'Out')
+  );
   const stepperHtml = !isCancelled ? `
     <div class="track-stepper-container">
       <div class="stepper-header-meta">
@@ -1041,11 +1053,11 @@ function renderTrackOrderDetails(order) {
       </div>
       <div class="track-steps-list">
         ${ORDER_STATUS_STEPS.map((step, idx) => {
-          let nodeClass = '';
-          if (idx < currentStepIdx) nodeClass = 'completed';
-          else if (idx === currentStepIdx) nodeClass = 'active';
-          const icon = idx < currentStepIdx ? '✓' : step.icon;
-          return `
+    let nodeClass = '';
+    if (idx < currentStepIdx) nodeClass = 'completed';
+    else if (idx === currentStepIdx) nodeClass = 'active';
+    const icon = idx < currentStepIdx ? '✓' : step.icon;
+    return `
             <div class="step-node ${nodeClass}">
               <div class="step-icon-wrap">${icon}</div>
               <div class="step-info">
@@ -1053,7 +1065,7 @@ function renderTrackOrderDetails(order) {
                 <div class="step-desc">${idx === currentStepIdx ? '<strong>' + step.desc + '</strong>' : step.desc}</div>
               </div>
             </div>`;
-        }).join('')}
+  }).join('')}
       </div>
     </div>` : `
     <div class="cancelled-order-banner">
@@ -1104,6 +1116,14 @@ function renderTrackOrderDetails(order) {
       <button class="btn-outline-danger" onclick="promptCancelOrder('${order.id}')" id="btn-cancel-${order.id}">
         ✕ Cancel This Order
       </button>
+    </div>` : ''}
+
+    ${isPreparing ? `
+    <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:12px 14px;margin-top:8px;display:flex;align-items:center;gap:8px;">
+      <div>
+        <div style="font-size:.84rem;font-weight:700;color:#795548;">Preparation in Progress</div>
+        <div style="font-size:.78rem;color:#8D6E63;margin-top:2px;">Our bakers are already working on your order — cancellation is no longer available at this stage.</div>
+      </div>
     </div>` : ''}
 
     <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;">
@@ -1671,7 +1691,7 @@ function renderCart() {
         <h3>Your Cart is Empty</h3>
         <p>Explore our delicious cakes, brownies and cupcakes to fill it up!</p>
         <button class="btn btn-primary btn-sm" onclick="closeCart(); window.location.href='menu.html'" style="margin-top:16px;">
-          Browse Menu
+          Browse Desserts
         </button>
       </div>
     `;
@@ -1713,23 +1733,69 @@ function renderCart() {
   }).join('');
 
   // Delivery & Free delivery threshold (₹499)
-  const freeThreshold = 499;
+  const freeThreshold = 1499;
   const isFreeDelivery = subtotal >= freeThreshold;
-  const deliveryFee = isFreeDelivery ? 0 : 50;
-  const total = subtotal + deliveryFee;
+  const deliveryFee = isFreeDelivery ? 0 : 60;
+
+  // Apply promo/offer discount
+  const appliedOffer = getAppliedOffer();
+  let discount = 0;
+  if (appliedOffer && subtotal > 0) {
+    if (appliedOffer.discountType === 'percent') {
+      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
+        discount = Math.round(subtotal * appliedOffer.discountValue / 100);
+      }
+    } else if (appliedOffer.discountType === 'flat') {
+      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
+        discount = Math.min(appliedOffer.discountValue, subtotal);
+      }
+    }
+  }
+
+  const total = subtotal + deliveryFee - discount;
 
   const promoCallout = document.getElementById('cart-promo-callout');
   if (promoCallout) {
+    let promoHtml = '';
     if (isFreeDelivery) {
-      promoCallout.innerHTML = `<strong>Free Delivery unlocked!</strong> You qualify for zero delivery charge.`;
+      promoHtml += `<div style="color:#2E7D32;font-weight:600;">Free Delivery unlocked! You qualify for zero delivery charge.</div>`;
     } else {
       const needed = freeThreshold - subtotal;
-      promoCallout.innerHTML = `Add <strong>₹${needed.toLocaleString()}</strong> more to unlock <strong>FREE Delivery</strong>!`;
+      promoHtml += `<div>Add <strong>₹${needed.toLocaleString()}</strong> more to unlock <strong>FREE Delivery</strong>!</div>`;
     }
+    // Promo code input row
+    const appliedCode = localStorage.getItem('hds_promo_code') || '';
+    if (appliedOffer && discount > 0) {
+      promoHtml += `
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+          <div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:6px;padding:6px 12px;font-size:.82rem;font-weight:600;color:#2E7D32;flex:1;">
+            ✅ Code <strong>${appliedCode.toUpperCase()}</strong> applied — You save ₹${discount.toLocaleString()}!
+          </div>
+          <button onclick="removePromoCode()" style="background:transparent;border:1px solid var(--c-border);border-radius:6px;padding:6px 10px;font-size:.8rem;color:var(--c-text-muted);cursor:pointer;">Remove</button>
+        </div>`;
+    } else {
+      promoHtml += `
+        <div style="margin-top:8px;display:flex;gap:6px;">
+          <input type="text" id="promo-code-input" placeholder="Enter promo code (e.g. SWEET15)" value="${appliedCode}" style="flex:1;padding:7px 12px;border:1px solid var(--c-border);border-radius:6px;font-size:.82rem;font-family:'Inter',sans-serif;background:#fff;" onkeydown="if(event.key==='Enter')applyPromoCode()" />
+          <button onclick="applyPromoCode()" style="background:var(--c-gold);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer;">Apply</button>
+        </div>`;
+    }
+    promoCallout.innerHTML = promoHtml;
   }
 
   const subtotalEl = document.getElementById('cart-subtotal');
   if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+
+  const discountRow = document.getElementById('cart-discount-row');
+  const discountEl = document.getElementById('cart-discount');
+  if (discountRow && discountEl) {
+    if (discount > 0) {
+      discountRow.style.display = '';
+      discountEl.textContent = `-₹${discount.toLocaleString()}`;
+    } else {
+      discountRow.style.display = 'none';
+    }
+  }
 
   const deliveryEl = document.getElementById('cart-delivery');
   if (deliveryEl) deliveryEl.textContent = isFreeDelivery ? 'FREE' : `₹${deliveryFee}`;
@@ -1753,7 +1819,21 @@ function openCheckout() {
   cart.forEach(i => subtotal += (i.price * i.quantity));
   const freeThreshold = 499;
   const deliveryFee = subtotal >= freeThreshold ? 0 : 50;
-  const total = subtotal + deliveryFee;
+
+  const appliedOffer = getAppliedOffer();
+  let discount = 0;
+  if (appliedOffer && subtotal > 0) {
+    if (appliedOffer.discountType === 'percent') {
+      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
+        discount = Math.round(subtotal * appliedOffer.discountValue / 100);
+      }
+    } else if (appliedOffer.discountType === 'flat') {
+      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
+        discount = Math.min(appliedOffer.discountValue, subtotal);
+      }
+    }
+  }
+  const total = subtotal + deliveryFee - discount;
 
   const summaryEl = document.getElementById('checkout-order-summary');
   if (summaryEl) {
@@ -1764,6 +1844,11 @@ function openCheckout() {
           <span>${i.quantity}x ${i.name} (${i.size || 'Regular'})</span>
           <span>₹${(i.price * i.quantity).toLocaleString()}</span>
         </div>`).join('')}
+        ${discount > 0 ? `
+        <div style="display:flex;justify-content:space-between;font-size:.84rem;color:#2E7D32;margin-top:6px;font-weight:600;">
+          <span>🏷️ Promo Discount (${localStorage.getItem('hds_promo_code') || ''})</span>
+          <span>-₹${discount.toLocaleString()}</span>
+        </div>` : ''}
         <div style="border-top:1px dashed var(--c-border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-weight:700;color:var(--c-brown);">
           <span>Total Payable:</span>
           <span>₹${total.toLocaleString()}</span>
@@ -1832,7 +1917,7 @@ function submitOrder(e) {
   const deliveryType = document.querySelector('input[name="delivery-type"]:checked')?.value || 'delivery';
   const address = document.getElementById('checkout-address')?.value.trim() || (deliveryType === 'pickup' ? 'Direct Studio Pickup' : '');
   const preferredDate = document.getElementById('checkout-date')?.value || '';
-  const timeSlot = document.getElementById('checkout-time')?.value || 'Afternoon (1 PM - 4 PM)';
+  const timeSlot = document.getElementById('checkout-time')?.value || '1 PM - 4 PM';
   const paymentMethod = document.getElementById('checkout-payment')?.value || 'UPI';
   const notes = document.getElementById('checkout-notes')?.value.trim() || '';
   const pin = document.getElementById('checkout-pin')?.value.trim() || '';
@@ -1869,7 +1954,21 @@ function submitOrder(e) {
   let subtotal = 0;
   cart.forEach(i => subtotal += (i.price * i.quantity));
   const deliveryFee = subtotal >= 499 ? 0 : 50;
-  const total = subtotal + deliveryFee;
+
+  const appliedOffer = getAppliedOffer();
+  let discount = 0;
+  if (appliedOffer && subtotal > 0) {
+    if (appliedOffer.discountType === 'percent') {
+      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
+        discount = Math.round(subtotal * appliedOffer.discountValue / 100);
+      }
+    } else if (appliedOffer.discountType === 'flat') {
+      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
+        discount = Math.min(appliedOffer.discountValue, subtotal);
+      }
+    }
+  }
+  const total = subtotal + deliveryFee - discount;
 
   const now = new Date();
   const orderId = `ORD-${now.getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -1890,7 +1989,7 @@ function submitOrder(e) {
     items: cart,
     subtotal,
     deliveryFee,
-    discount: 0,
+    discount,
     total,
     paymentMethod,
     status: 'Pending',
@@ -1909,8 +2008,9 @@ function submitOrder(e) {
     addOrder(orderData);
   }
 
-  // Clear cart
+  // Clear cart and promo code
   saveCart([]);
+  localStorage.removeItem('hds_promo_code');
   closeCheckout();
 
   // Show celebratory success modal
@@ -2004,6 +2104,165 @@ document.addEventListener('keydown', e => {
 });
 
 // =============================================================
+//  Promo Code / Offer Application System
+// =============================================================
+const PROMO_CODES = {
+  'SWEET15': { discountType: 'percent', discountValue: 15, minOrder: 1000, label: '15% OFF on orders above ₹1,000' },
+  'BROWNIE10': { discountType: 'percent', discountValue: 10, minOrder: 0, label: '10% OFF on any order' },
+  'SAVE50': { discountType: 'flat', discountValue: 50, minOrder: 499, label: '₹50 OFF on orders above ₹499' },
+  'WELCOME': { discountType: 'percent', discountValue: 5, minOrder: 0, label: '5% OFF — Welcome offer for new customers' },
+};
+
+function getAppliedOffer() {
+  const code = (localStorage.getItem('hds_promo_code') || '').toUpperCase();
+  return code && PROMO_CODES[code] ? { ...PROMO_CODES[code], code } : null;
+}
+
+function applyPromoCode() {
+  const input = document.getElementById('promo-code-input');
+  if (!input) return;
+  const code = input.value.trim().toUpperCase();
+  if (!code) {
+    showToast('Please enter a promo code.', 'error');
+    return;
+  }
+  if (!PROMO_CODES[code]) {
+    showToast('Invalid promo code. Please check and try again.', 'error');
+    return;
+  }
+  const offer = PROMO_CODES[code];
+  const cart = getCart();
+  const subtotal = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  if (offer.minOrder && subtotal < offer.minOrder) {
+    showToast(`This code requires a minimum order of ₹${offer.minOrder.toLocaleString()}.`, 'error');
+    return;
+  }
+  localStorage.setItem('hds_promo_code', code);
+  showToast(`Promo code ${code} applied! ${offer.label}`, 'success');
+  renderCart();
+}
+
+function removePromoCode() {
+  localStorage.removeItem('hds_promo_code');
+  showToast('Promo code removed.', '');
+  renderCart();
+}
+
+// =============================================================
+//  Customer Review Submission System
+// =============================================================
+function openReviewModal() {
+  const user = getCurrentUser();
+  ensureReviewModal();
+  const modal = document.getElementById('review-modal');
+  if (!modal) return;
+  // Pre-fill name if logged in
+  const nameEl = document.getElementById('review-name');
+  if (nameEl && user) nameEl.value = user.name || '';
+  // Reset star rating display
+  const ratingInput = document.getElementById('review-rating-value');
+  if (ratingInput) ratingInput.value = '0';
+  document.querySelectorAll('.review-star-btn').forEach(btn => btn.classList.remove('active'));
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReviewModal() {
+  const modal = document.getElementById('review-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function setReviewStarRating(rating) {
+  document.querySelectorAll('.review-star-btn').forEach((btn, idx) => {
+    btn.classList.toggle('active', idx < rating);
+    btn.setAttribute('data-selected', idx < rating ? 'true' : 'false');
+  });
+  const ratingInput = document.getElementById('review-rating-value');
+  if (ratingInput) ratingInput.value = rating;
+}
+
+function submitCustomerReview(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('review-name')?.value.trim();
+  const review = document.getElementById('review-text')?.value.trim();
+  const rating = parseInt(document.getElementById('review-rating-value')?.value || '0');
+
+  if (!name) { showToast('Please enter your name.', 'error'); return; }
+  if (!review) { showToast('Please write a review.', 'error'); return; }
+  if (!rating) { showToast('Please select a star rating.', 'error'); return; }
+
+  // Add to appData testimonials
+  const newTestimonial = {
+    id: 'tr_' + Date.now(),
+    name,
+    review,
+    rating,
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  };
+
+  if (appData && appData.testimonials) {
+    appData.testimonials.unshift(newTestimonial);
+    if (typeof saveAdminData === 'function') saveAdminData(appData);
+  }
+
+  // Re-render testimonials carousel on home page if present
+  if (typeof initReviewsCarousel === 'function') {
+    initReviewsCarousel();
+  }
+
+  closeReviewModal();
+  document.getElementById('review-form')?.reset();
+  showToast('Thank you for your review!', 'success');
+}
+
+function ensureReviewModal() {
+  if (document.getElementById('review-modal')) return;
+  const modal = document.createElement('div');
+  modal.id = 'review-modal';
+  modal.className = 'hidden';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(42,20,10,.6);backdrop-filter:blur(6px);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `
+    <div class="auth-card" style="max-width:480px;width:100%;">
+      <div class="auth-header">
+        <div class="auth-header-text">
+          <h3>Share Your Experience</h3>
+          <p>We love hearing from our sweet family!</p>
+        </div>
+        <button class="auth-close-btn" onclick="closeReviewModal()" aria-label="Close">×</button>
+      </div>
+      <div class="auth-body">
+        <form id="review-form" onsubmit="submitCustomerReview(event)">
+          <div class="auth-form-group">
+            <label>Your Name *</label>
+            <input type="text" id="review-name" placeholder="e.g. Sneha Patel" required />
+          </div>
+          <div class="auth-form-group">
+            <label>Your Rating *</label>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <button type="button" class="review-star-btn" onclick="setReviewStarRating(1)" aria-label="Rate 1">★</button>
+              <button type="button" class="review-star-btn" onclick="setReviewStarRating(2)" aria-label="Rate 2">★</button>
+              <button type="button" class="review-star-btn" onclick="setReviewStarRating(3)" aria-label="Rate 3">★</button>
+              <button type="button" class="review-star-btn" onclick="setReviewStarRating(4)" aria-label="Rate 4">★</button>
+              <button type="button" class="review-star-btn" onclick="setReviewStarRating(5)" aria-label="Rate 5">★</button>
+            </div>
+            <input type="hidden" id="review-rating-value" value="0" />
+          </div>
+          <div class="auth-form-group">
+            <label>Your Review *</label>
+            <textarea id="review-text" placeholder="Tell us about your experience with DessertWall Studio..." rows="4" style="width:100%;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:.9rem;resize:vertical;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" style="width:100%;justify-content:center;margin-top:4px;">Submit Review</button>
+        </form>
+      </div>
+    </div>`;
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeReviewModal(); });
+  document.body.appendChild(modal);
+}
+
+// =============================================================
 //  Shared DOM Initializer
 // =============================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -2011,6 +2270,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initRunningOfferBar();
   updateCartBadge();
   updateUserAuthUI();
+  if (document.getElementById('testimonials-scroll-container')) {
+    initReviewsCarousel();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const reviewModal = document.getElementById('review-modal');
+    if (reviewModal && !reviewModal.classList.contains('hidden')) closeReviewModal();
+  }
 });
 
 document.querySelectorAll('input[type="number"]').forEach(input => {
@@ -2018,3 +2287,210 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
     e.preventDefault();
   }, { passive: false });
 });
+
+// =============================================================
+// =============================================================
+//  Horizontal Looping Reviews Carousel (2 at a time, 80-85% device width)
+// =============================================================
+function scrollReviewsCarousel(direction) {
+  const container = document.getElementById('testimonials-scroll-container');
+  if (!container) return;
+
+  const isMobile = window.innerWidth <= 640;
+  const gap = isMobile ? 12 : 20;
+  const cardWidth = Math.max(120, Math.floor((container.clientWidth - gap) / 2));
+  const step = cardWidth + gap;
+  const maxScroll = container.scrollWidth - container.clientWidth;
+
+  if (direction > 0) { // Next review (>)
+    if (container.scrollLeft >= maxScroll - 20) {
+      container.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: step, behavior: 'smooth' });
+    }
+  } else { // Prev review (<)
+    if (container.scrollLeft <= 20) {
+      container.scrollTo({ left: maxScroll, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: -step, behavior: 'smooth' });
+    }
+  }
+}
+window.scrollReviewsCarousel = scrollReviewsCarousel;
+
+function initReviewsCarousel() {
+  const container = document.getElementById('testimonials-scroll-container');
+  const grid = document.getElementById('testimonials-grid');
+  const prevBtn = document.getElementById('review-prev-btn');
+  const nextBtn = document.getElementById('review-next-btn');
+
+  if (!container || !grid) return;
+
+  // Source: latest 10 from appData.testimonials (newest first — new ones are unshift-ed)
+  const allReviews = (window.appData && Array.isArray(appData.testimonials) && appData.testimonials.length > 0)
+    ? appData.testimonials
+    : (typeof TESTIMONIALS !== 'undefined' ? TESTIMONIALS : []);
+
+  // Take the first 10 (index 0 = newest since unshift is used on submit)
+  const rawItems = allReviews.slice(0, Math.min(10, allReviews.length));
+
+  if (rawItems.length === 0) {
+    grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--c-text-muted);">No reviews yet. Be the first!</div>';
+    return;
+  }
+
+  // Ensure at least 4 items so the infinite-loop duplication looks natural
+  let baseItems = [...rawItems];
+  while (baseItems.length < 4) baseItems = baseItems.concat(rawItems);
+  const totalBase = baseItems.length;
+
+  // Build 3 copies for seamless infinite looping
+  const tripled = [];
+  for (let s = 0; s < 3; s++) baseItems.forEach(t => tripled.push(t));
+
+  // Render all cards into the grid
+  grid.innerHTML = tripled.map(t => {
+    const rVal = Math.min(5, Math.max(1, parseInt(t.rating) || 5));
+    const stars = '★'.repeat(rVal) + '☆'.repeat(5 - rVal);
+    return `
+    <div class="testimonial-card">
+      <div class="test-stars">${stars}</div>
+      <p class="test-review">"${t.review}"</p>
+      <div class="test-name">— ${t.name}${t.date
+      ? `<span style="font-size:.72rem;color:var(--c-text-muted);margin-left:6px;">${t.date}</span>`
+      : ''}</div>
+    </div>
+  `;
+  }).join('');
+
+  let step = 0;
+  let currentCardWidth = 0;
+
+  function updateDimensions() {
+    const isMobile = window.innerWidth <= 640;
+    const gap = isMobile ? 12 : 20;
+    const containerW = container.clientWidth || (window.innerWidth * 0.84 - 88);
+    // Exactly 2 cards visible at a time
+    currentCardWidth = Math.max(120, Math.floor((containerW - gap) / 2));
+    step = currentCardWidth + gap;
+
+    const cards = grid.querySelectorAll('.testimonial-card');
+    cards.forEach(c => {
+      c.style.width = currentCardWidth + 'px';
+      c.style.minWidth = currentCardWidth + 'px';
+      c.style.maxWidth = currentCardWidth + 'px';
+      c.style.flex = `0 0 ${currentCardWidth}px`;
+    });
+
+    return step;
+  }
+
+  updateDimensions();
+  const setWidth = totalBase * step;
+
+  // Initialize at Set 1
+  container.style.scrollBehavior = 'auto';
+  container.scrollLeft = setWidth;
+
+  // Resize handler
+  if (container._resizeHandler) {
+    window.removeEventListener('resize', container._resizeHandler);
+  }
+  container._resizeHandler = () => {
+    updateDimensions();
+  };
+  window.addEventListener('resize', container._resizeHandler);
+
+  // Normalization logic for infinite looping
+  let isNormalizing = false;
+  let scrollTimeout = null;
+
+  function checkLoopBoundary() {
+    if (isNormalizing) return;
+    const currentSetWidth = totalBase * step;
+    if (currentSetWidth <= 0) return;
+    const sLeft = container.scrollLeft;
+
+    if (sLeft >= 2 * currentSetWidth) {
+      isNormalizing = true;
+      container.style.scrollBehavior = 'auto';
+      container.scrollLeft = sLeft - currentSetWidth;
+      requestAnimationFrame(() => {
+        container.style.scrollBehavior = 'smooth';
+        isNormalizing = false;
+      });
+    } else if (sLeft < currentSetWidth - step) {
+      isNormalizing = true;
+      container.style.scrollBehavior = 'auto';
+      container.scrollLeft = sLeft + currentSetWidth;
+      requestAnimationFrame(() => {
+        container.style.scrollBehavior = 'smooth';
+        isNormalizing = false;
+      });
+    }
+  }
+
+  container.onscroll = () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(checkLoopBoundary, 100);
+  };
+
+  if (nextBtn) {
+    nextBtn.onclick = (e) => {
+      e.preventDefault();
+      scrollReviewsCarousel(1);
+    };
+  }
+
+  if (prevBtn) {
+    prevBtn.onclick = (e) => {
+      e.preventDefault();
+      scrollReviewsCarousel(-1);
+    };
+  }
+
+  // Mouse Drag Support
+  let isDown = false;
+  let startX = 0;
+  let scrollLeftStart = 0;
+
+  container.onmousedown = (e) => {
+    isDown = true;
+    container.classList.add('is-dragging');
+    startX = e.pageX - container.offsetLeft;
+    scrollLeftStart = container.scrollLeft;
+  };
+
+  window.addEventListener('mouseup', () => {
+    if (isDown) {
+      isDown = false;
+      container.classList.remove('is-dragging');
+    }
+  });
+
+  container.onmousemove = (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX);
+    container.scrollLeft = scrollLeftStart - walk;
+  };
+}
+window.initReviewsCarousel = initReviewsCarousel;
+
+// Auto-run if elements exist
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('testimonials-scroll-container')) initReviewsCarousel();
+  });
+} else {
+  if (document.getElementById('testimonials-scroll-container')) initReviewsCarousel();
+}
+window.addEventListener('load', () => {
+  if (document.getElementById('testimonials-scroll-container')) initReviewsCarousel();
+});
+
+function setReviewRating(n) {
+  reviewRating = n;
+  document.querySelectorAll('#starPick button').forEach((b, i) => b.classList.toggle('on', i < n));
+}

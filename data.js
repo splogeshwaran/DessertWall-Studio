@@ -166,9 +166,9 @@ const OFFERS = [
     id: "o3",
     title: "Free Express Delivery",
     badge: "FREE DELIVERY",
-    description: "Enjoy zero delivery charges across Bangalore on all orders above ₹499.",
+    description: "Enjoy zero delivery charges across Chennai on all orders above ₹499.",
     discountText: "Zero Delivery Fee on all gourmet boxes & cakes above ₹499",
-    linkText: "Browse Menu",
+    linkText: "Browse Desserts",
     linkCategory: "All",
     active: true, featured: false,
     startDate: "2026-09-10", endDate: "2026-12-31"
@@ -194,10 +194,10 @@ const SAMPLE_ORDERS = [
       name: "Priya Sharma",
       phone: "+91 98450 12345",
       email: "priya.sharma@example.com",
-      address: "Flat 402, Green Glen Layout, Bellandur, Bangalore 560103",
+      address: "Flat 402, Greenways Road, R.A. Puram, Chennai 600028",
       deliveryType: "delivery",
       preferredDate: "2026-09-26",
-      timeSlot: "Afternoon (1 PM - 4 PM)"
+      timeSlot: "1 PM - 4 PM"
     },
     items: [
       {
@@ -229,7 +229,7 @@ const SAMPLE_ORDERS = [
       address: "Direct Studio Pickup",
       deliveryType: "pickup",
       preferredDate: "2026-09-25",
-      timeSlot: "Evening (5 PM - 7 PM)"
+      timeSlot: "5 PM - 7 PM"
     },
     items: [
       {
@@ -258,10 +258,10 @@ const SAMPLE_ORDERS = [
       name: "Dr. Meera Nambiar",
       phone: "+91 99001 54321",
       email: "meera.nam@example.com",
-      address: "Villa 18, Palm Meadows, Whitefield, Bangalore 560066",
+      address: "Villa 18, Shanthi Colony, Anna Nagar, Chennai 600040",
       deliveryType: "delivery",
       preferredDate: "2026-09-27",
-      timeSlot: "Morning (10 AM - 12 PM)"
+      timeSlot: "10 AM - 12 PM"
     },
     items: [
       {
@@ -301,7 +301,7 @@ const SAMPLE_ORDERS = [
       name: "Karan Johar",
       phone: "+91 98860 33441",
       email: "karan@example.com",
-      address: "12, 4th Main, Indiranagar, Bangalore 560038",
+      address: "12, 4th Main Road, T. Nagar, Chennai 600017",
       deliveryType: "delivery",
       preferredDate: "2026-09-23",
       timeSlot: "Immediate Delivery"
@@ -324,15 +324,21 @@ const SAMPLE_ORDERS = [
     discount: 0,
     total: 950,
     paymentMethod: "Credit Card (Online)",
-    status: "Completed"
+    status: "Delivered"
   }
 ];
 
 const TESTIMONIALS = [
-  { id: "t1", name: "Priya Sharma",  review: "The chocolate truffle cake was absolutely divine! The ganache was silky smooth and the presentation was stunning. Will definitely order again.", rating: 5 },
-  { id: "t2", name: "Arjun Mehta",   review: "Ordered the brownie gift box for my team and everyone loved it. The packaging was premium and brownies were perfectly fudgy. Highly recommend!", rating: 5 },
-  { id: "t3", name: "Sneha Pillai",  review: "The cupcakes for my daughter's baby shower were a hit! Each one was beautifully decorated and tasted incredible. So personal and thoughtful.", rating: 5 },
-  { id: "t4", name: "Rohan Gupta",   review: "Amazing quality, fresh ingredients and delivered right on time! The custom floral cake matched our vision perfectly. 10/10!", rating: 5 }
+  { id: "t1", name: "Priya Sharma",    review: "The chocolate truffle cake was absolutely divine! The ganache was silky smooth and the presentation was stunning. Will definitely order again.", rating: 5 },
+  { id: "t2", name: "Arjun Mehta",     review: "Ordered the brownie gift box for my team and everyone loved it. The packaging was premium and brownies were perfectly fudgy. Highly recommend!", rating: 5 },
+  { id: "t3", name: "Sneha Pillai",    review: "The cupcakes for my daughter's baby shower were a hit! Each one was beautifully decorated and tasted incredible. So personal and thoughtful.", rating: 5 },
+  { id: "t4", name: "Rohan Gupta",     review: "Amazing quality, fresh ingredients and delivered right on time! The custom floral cake matched our vision perfectly. 10/10!", rating: 5 },
+  { id: "t5", name: "Kavya Nair",      review: "Ordered a fondant cake for our anniversary and it was a masterpiece! The detail work was breathtaking and it tasted even better than it looked.", rating: 5 },
+  { id: "t6", name: "Vikram Iyer",     review: "The red velvet cake was moist, rich and absolutely perfect for our office celebration. Everyone kept asking where we got it from!", rating: 5 },
+  { id: "t7", name: "Meera Krishnan",  review: "I've tried many bakeries in Chennai but DessertWall Studio is on a completely different level. The bespoke cake for my son's birthday was phenomenal!", rating: 5 },
+  { id: "t8", name: "Siddharth Rao",   review: "Placed a last-minute order and they delivered flawlessly. The mango mousse cake was so fresh and light — perfect for summer celebrations!", rating: 5 },
+  { id: "t9", name: "Ananya Bose",     review: "The macarons and dessert box I gifted for Diwali were a massive hit. Beautiful presentation, perfectly balanced flavours. Will order every festive season!", rating: 5 },
+  { id: "t10", name: "Karthik Menon",  review: "Top-notch customer service and even better desserts. The black forest cake was layered perfectly and tasted exactly like the ones you dream about!", rating: 5 }
 ];
 
 // -- Admin & Storage helpers --
@@ -343,6 +349,16 @@ function loadAdminData() {
       const parsed = JSON.parse(s);
       // Ensure offers have new structure if older cache exists
       if (!parsed.offers || parsed.offers.length === 0) parsed.offers = OFFERS;
+      // Ensure testimonials exist; merge in any new default reviews not yet in cache
+      if (!parsed.testimonials || parsed.testimonials.length === 0) {
+        parsed.testimonials = [...TESTIMONIALS];
+      } else {
+        // Add any default reviews whose ID is missing from the cached list
+        const cachedIds = new Set(parsed.testimonials.map(t => t.id));
+        TESTIMONIALS.forEach(t => {
+          if (!cachedIds.has(t.id)) parsed.testimonials.push(t);
+        });
+      }
       return parsed;
     }
   } catch(e) {}
@@ -355,7 +371,10 @@ function saveAdminData(data) {
 
 let appData = loadAdminData();
 if (!appData) {
-  appData = { products: PRODUCTS, gallery: GALLERY, offers: OFFERS, testimonials: TESTIMONIALS, business: { ...BUSINESS } };
+  appData = { products: PRODUCTS, gallery: GALLERY, offers: OFFERS, testimonials: [...TESTIMONIALS], business: { ...BUSINESS } };
+  saveAdminData(appData);
+} else if (!appData.testimonials || appData.testimonials.length === 0) {
+  appData.testimonials = [...TESTIMONIALS];
   saveAdminData(appData);
 }
 
@@ -415,7 +434,20 @@ function subscribeToOrderUpdates(callback) {
 function getOrders() {
   try {
     const s = localStorage.getItem("hds_orders");
-    if (s) return JSON.parse(s);
+    if (s) {
+      const parsed = JSON.parse(s);
+      let migrated = false;
+      parsed.forEach(o => {
+        if (o.status === 'Completed') {
+          o.status = 'Delivered';
+          migrated = true;
+        }
+      });
+      if (migrated) {
+        saveOrders(parsed);
+      }
+      return parsed;
+    }
   } catch(e) {}
   // Default to sample orders
   try { localStorage.setItem("hds_orders", JSON.stringify(SAMPLE_ORDERS)); } catch(e) {}
@@ -457,11 +489,14 @@ function cancelOrder(orderId, reason = 'Cancelled by customer', cancelledBy = 'C
     return { success: false, message: 'Order not found' };
   }
 
-  if (order.status === 'Completed') {
+  if (order.status === 'Completed' || order.status === 'Delivered') {
     return { success: false, message: 'Delivered orders cannot be cancelled.' };
   }
   if (order.status === 'Cancelled') {
     return { success: false, message: 'This order is already cancelled.' };
+  }
+  if (cancelledBy === 'Customer' && ['Preparing', 'Ready', 'Out for Delivery', 'Out'].includes(order.status)) {
+    return { success: false, message: 'Preparation has already started for this order. It cannot be cancelled.' };
   }
 
   const now = new Date();

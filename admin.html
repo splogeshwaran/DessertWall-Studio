@@ -89,6 +89,7 @@
       font-size: .84rem;
       font-weight: 700;
       transition: all var(--transition);
+      height: 38px;
     }
 
     .admin-store-link:hover {
@@ -99,17 +100,35 @@
     .admin-container {
       display: grid;
       grid-template-columns: 260px 1fr;
+      height: calc(100vh - 68px);
       min-height: calc(100vh - 68px);
+      overflow: hidden;
     }
 
     .admin-nav {
       background: #361B0E;
       color: rgba(255, 255, 255, .85);
-      padding: 24px 0;
       display: flex;
       flex-direction: column;
       gap: 4px;
       border-right: 1px solid rgba(255, 255, 255, .08);
+      position: sticky;
+      top: 0;
+      height: 100%;
+      max-height: calc(100vh - 68px);
+      overflow-y: auto;
+      flex-shrink: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, .15) transparent;
+    }
+
+    .admin-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .admin-nav::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .15);
+      border-radius: 4px;
     }
 
     .admin-nav-item {
@@ -224,6 +243,8 @@
     @media (max-width: 900px) {
       .admin-container {
         grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
       }
 
       .admin-nav {
@@ -232,6 +253,12 @@
         padding: 12px 16px;
         border-right: none;
         border-bottom: 1px solid var(--c-border);
+        position: sticky;
+        top: 68px;
+        height: auto;
+        max-height: none;
+        z-index: 900;
+        background: #361B0E;
       }
 
       .admin-nav-item {
@@ -248,12 +275,82 @@
 
       .admin-content {
         padding: 24px 20px;
+        height: auto;
+        overflow-y: visible;
       }
     }
   </style>
 </head>
 
 <body class="admin-page">
+
+  <!-- ====================================================
+       ADMIN LOGIN GATE — shown until correct password entered
+       ==================================================== -->
+  <div id="admin-login-gate" style="
+    position:fixed;inset:0;z-index:9999;
+    background:linear-gradient(135deg,#2a140a 0%,#4a2c17 60%,#2a140a 100%);
+    display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div style="
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:20px;
+      padding:48px 40px;
+      max-width:420px;width:100%;
+      backdrop-filter:blur(16px);
+      box-shadow:0 24px 64px rgba(0,0,0,.5);
+      text-align:center;">
+      <!-- Logo -->
+      <div style="width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+        <img src="images/logo.jpg" style="width:52px;height:52px;border-radius:10px;object-fit:cover;">
+      </div>
+      <h2 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.6rem;margin:0 0 6px;">DessertWall Studio</h2>
+      <p style="color:rgba(255,255,255,.55);font-size:.85rem;margin:0 0 32px;text-transform:uppercase;letter-spacing:.1em;">Owner Dashboard</p>
+
+      <form id="admin-login-form" onsubmit="submitAdminLogin(event)">
+        <div style="text-align:left;margin-bottom:16px;">
+          <label style="display:block;color:rgba(255,255,255,.7);font-size:.82rem;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">Admin Phone Number</label>
+          <input type="tel" id="admin-login-phone" placeholder="Enter 10-digit mobile number"
+            style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:.95rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;transition:border-color .2s;"
+            autocomplete="tel"
+            onfocus="this.style.borderColor='rgba(212,175,55,.7)'"
+            onblur="this.style.borderColor='rgba(255,255,255,.15)'" required />
+        </div>
+
+        <div style="text-align:left;margin-bottom:16px;">
+          <label style="display:block;color:rgba(255,255,255,.7);font-size:.82rem;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">Admin Password</label>
+          <div style="position:relative;">
+            <input type="password" id="admin-login-pass" placeholder="Enter admin password"
+              style="width:100%;padding:12px 44px 12px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:.95rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;transition:border-color .2s;"
+              autocomplete="current-password"
+              onfocus="this.style.borderColor='rgba(212,175,55,.7)'"
+              onblur="this.style.borderColor='rgba(255,255,255,.15)'" required />
+            <button type="button" onclick="toggleAdminPassVis()" tabindex="-1"
+              style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:1.1rem;padding:0;line-height:1;"
+              id="admin-pass-eye">👁</button>
+          </div>
+        </div>
+        <div id="admin-login-error" style="display:none;color:#ff8080;font-size:.82rem;margin-bottom:14px;text-align:left;padding:8px 12px;background:rgba(255,80,80,.1);border-radius:8px;border-left:3px solid #ff8080;line-height:1.4;">
+          Incorrect credentials. Please try again.
+        </div>
+        <button type="submit" style="
+          width:100%;padding:13px;border-radius:10px;
+          background:linear-gradient(135deg,#D4AF37,#b8870b);
+          color:#1a0a00;font-weight:700;font-size:.95rem;
+          border:none;cursor:pointer;font-family:'Inter',sans-serif;
+          transition:opacity .2s,transform .15s;letter-spacing:.03em;">
+          Enter Dashboard
+        </button>
+      </form>
+
+      <p style="color:rgba(255,255,255,.38);font-size:.76rem;margin-top:22px;line-height:1.6;">
+        Default Admin: Phone <code style="color:rgba(212,175,55,.9);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">7667305677</code> · Pass <code style="color:rgba(212,175,55,.9);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">admin123</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- Main dashboard — hidden until login -->
+  <div id="admin-dashboard-wrap" style="display:none;">
 
   <!-- ADMIN TOPBAR -->
   <header class="admin-topbar">
@@ -266,9 +363,10 @@
     </a>
     <div class="admin-topbar-actions">
       <div class="admin-clock" id="admin-clock"></div>
-      <a href="index.html" class="admin-store-link">
-        View Live Website
-      </a>
+      <button class="admin-store-link" onclick="window.open('index.html', '_blank')">
+              Preview Customer Site
+            </button>
+      <a href="#" class="admin-store-link" onclick="adminLogout()"> <img src="images/logout.svg">Logout</a>
     </div>
   </header>
 
@@ -350,9 +448,6 @@
             <button class="btn btn-gold btn-sm" onclick="openAddOfferModal()">
               Add Running Offer
             </button>
-            <button class="btn btn-outline btn-sm" onclick="window.open('index.html', '_blank')">
-              Preview Customer Site
-            </button>
           </div>
         </div>
 
@@ -409,10 +504,10 @@
               id="count-confirmed">0</span>)</button>
           <button class="admin-filter-btn" onclick="setOrderStatusFilter('Preparing', this)">Preparing (<span
               id="count-preparing">0</span>)</button>
-          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Ready', this)">Ready for Dispatch (<span
-              id="count-ready">0</span>)</button>
-          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Completed', this)">Completed (<span
-              id="count-completed">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Out for Delivery', this)">Out for Delivery (<span
+              id="count-out-for-delivery">0</span>)</button>
+          <button class="admin-filter-btn" onclick="setOrderStatusFilter('Delivered', this)">Delivered (<span
+              id="count-delivered">0</span>)</button>
           <button class="admin-filter-btn" onclick="setOrderStatusFilter('Cancelled', this)">Cancelled (<span
               id="count-cancelled">0</span>)</button>
         </div>
@@ -791,12 +886,12 @@
           </div>
           <div class="form-group full">
             <label>Default Delivery Address</label>
-            <textarea id="admin-cust-address" rows="2" placeholder="Full address in Bangalore..."></textarea>
+            <textarea id="admin-cust-address" rows="2" placeholder="Full address in Chennai..."></textarea>
           </div>
           <div class="form-group full">
             <label>Password (enter new password to change)</label>
             <input type="text" id="admin-cust-password" placeholder="e.g. password123" />
-            <div style="font-size:.74rem;color:var(--c-text-muted);margin-top:4px;">🔑 Leave untouched or enter new password to reset for user</div>
+            <div style="font-size:.74rem;color:var(--c-text-muted);margin-top:4px;">Leave untouched or enter new password to reset for user</div>
           </div>
           <div class="form-actions full" style="display:flex;gap:12px;margin-top:12px;">
             <button type="button" class="btn btn-outline" onclick="closeAdminCustomerModal()">Cancel</button>
@@ -879,7 +974,7 @@
       }
 
       tbody.innerHTML = recent.map(o => {
-        const statusClass = `status-${o.status.toLowerCase().replace(/\\s+/g, '-')}`;
+        const statusClass = `status-${o.status.toLowerCase().trim().replace(/\s+/g, '-')}`;
         return `
           <tr>
             <td><strong>${o.id}</strong><div style="font-size:.74rem;color:var(--c-text-muted);">${o.date}</div></td>
@@ -911,24 +1006,42 @@
       if (!tbody) return;
 
       // Update badge counts
-      const counts = { All: orders.length, Pending: 0, Confirmed: 0, Preparing: 0, Ready: 0, Completed: 0, Cancelled: 0 };
+      const counts = {
+        All: orders.length,
+        Pending: 0,
+        Confirmed: 0,
+        Preparing: 0,
+        'Out for Delivery': 0,
+        Delivered: 0,
+        Cancelled: 0
+      };
       orders.forEach(o => {
-        if (counts[o.status] !== undefined) counts[o.status]++;
+        const s = o.status;
+        if (s === 'Pending') counts.Pending++;
+        else if (s === 'Confirmed') counts.Confirmed++;
+        else if (s === 'Preparing' || s === 'Ready') counts.Preparing++;
+        else if (s === 'Out for Delivery' || s === 'Out') counts['Out for Delivery']++;
+        else if (s === 'Delivered' || s === 'Completed') counts.Delivered++;
+        else if (s === 'Cancelled') counts.Cancelled++;
       });
 
       document.getElementById('count-all').textContent = counts.All;
       document.getElementById('count-pending').textContent = counts.Pending;
       document.getElementById('count-confirmed').textContent = counts.Confirmed;
       document.getElementById('count-preparing').textContent = counts.Preparing;
-      document.getElementById('count-ready').textContent = counts.Ready;
-      document.getElementById('count-completed').textContent = counts.Completed;
+      document.getElementById('count-out-for-delivery').textContent = counts['Out for Delivery'];
+      document.getElementById('count-delivered').textContent = counts.Delivered;
       document.getElementById('count-cancelled').textContent = counts.Cancelled;
       document.getElementById('pending-orders-badge').textContent = counts.Pending;
 
       const q = (document.getElementById('order-search-input')?.value || '').toLowerCase().trim();
 
       const filtered = orders.filter(o => {
-        const matchesStatus = (currentFilterStatus === 'All') || (o.status === currentFilterStatus);
+        const matchesStatus = (currentFilterStatus === 'All') ||
+          (currentFilterStatus === 'Out for Delivery' ? (o.status === 'Out for Delivery' || o.status === 'Out') :
+           currentFilterStatus === 'Delivered' ? (o.status === 'Delivered' || o.status === 'Completed') :
+           currentFilterStatus === 'Preparing' ? (o.status === 'Preparing' || o.status === 'Ready') :
+           o.status === currentFilterStatus);
         const matchesQuery = !q ||
           o.id.toLowerCase().includes(q) ||
           o.customer.name.toLowerCase().includes(q) ||
@@ -942,7 +1055,7 @@
       }
 
       tbody.innerHTML = filtered.map(o => {
-        const statusClass = `status-${o.status.toLowerCase().replace(/\\s+/g, '-')}`;
+        const statusClass = `status-${o.status.toLowerCase().trim().replace(/\s+/g, '-')}`;
         const itemsList = (o.items || []).map(i => {
           let s = `• <strong>${i.quantity}x ${i.name}</strong> (${i.size || 'Standard'})`;
           if (i.flavour) s += ` - ${i.flavour}`;
@@ -952,8 +1065,7 @@
           return s;
         }).join('<br>');
 
-        const cancelInfo = o.status === 'Cancelled' && (o.cancelledBy || o.cancelReason) ? `
-          <div class="badge-cancelled-info">By: ${o.cancelledBy || 'Customer'}</div>
+        const cancelInfo = o.status === 'Cancelled' && o.cancelReason ? `
           ${o.cancelReason ? `<div class="admin-cancel-reason-note">"${o.cancelReason}"</div>` : ''}
           ${o.cancelledAt ? `<div style="font-size:.71rem;color:var(--c-text-muted);margin-top:2px;">${o.cancelledAt}</div>` : ''}
         ` : '';
@@ -988,9 +1100,8 @@
                 <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
                 <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
                 <option value="Preparing" ${o.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
-                <option value="Ready" ${o.status === 'Ready' ? 'selected' : ''}>Ready</option>
-                <option value="Out for Delivery" ${o.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
-                <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                <option value="Out for Delivery" ${(o.status === 'Out for Delivery' || o.status === 'Out') ? 'selected' : ''}>Out for Delivery</option>
+                <option value="Delivered" ${(o.status === 'Delivered' || o.status === 'Completed') ? 'selected' : ''}>Delivered</option>
                 <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
               </select>
             </td>
@@ -1022,7 +1133,7 @@
         <div style="background:var(--c-cream);border:1px solid var(--c-border);border-radius:var(--radius-sm);padding:18px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
             <strong>Order ID: ${order.id}</strong>
-            <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+            <span class="status-badge status-${order.status.toLowerCase().trim().replace(/\s+/g, '-')}">${order.status}</span>
           </div>
           <div><strong>Customer:</strong> ${order.customer.name} (${order.customer.phone})</div>
           <div><strong>Address:</strong> ${order.customer.address}</div>
@@ -1339,14 +1450,18 @@
       const grid = document.getElementById('admin-reviews-grid');
       if (!grid) return;
 
-      grid.innerHTML = (appData.testimonials || []).map((t, idx) => `
+      grid.innerHTML = (appData.testimonials || []).map((t, idx) => {
+        const ratingVal = Math.min(5, Math.max(1, parseInt(t.rating) || 5));
+        const stars = '★'.repeat(ratingVal) + '☆'.repeat(5 - ratingVal);
+        return `
         <div class="admin-offer-card">
-          <div class="test-stars">★★★★★</div>
+          <div class="test-stars" style="color:var(--c-gold);font-size:1.05rem;letter-spacing:2px;margin-bottom:8px;">${stars} <span style="font-size:.82rem;color:var(--c-text-muted);font-weight:600;margin-left:4px;">(${ratingVal}/5)</span></div>
           <p class="test-review">"${t.review}"</p>
-          <div style="font-weight:700;color:var(--c-brown);margin-bottom:12px;">— ${t.name}</div>
+          <div style="font-weight:700;color:var(--c-brown);margin-bottom:12px;">— ${t.name}${t.date ? ` <span style="font-size:.75rem;font-weight:400;color:var(--c-text-muted);">(${t.date})</span>` : ''}</div>
           <button class="admin-btn admin-btn-del" onclick="deleteReview(${idx})">Delete Review</button>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function deleteReview(idx) {
@@ -1577,7 +1692,7 @@
 
             if (type === 'ORDER_CANCELLED' && msg.payload) {
               const p = msg.payload;
-              showToast(`Order ${p.orderId} cancelled by ${p.cancelledBy || 'Customer'}: ${p.reason || ''}`, 'error');
+              showToast(`Order ${p.orderId} cancelled: ${p.reason || ''}`, 'error');
             } else if (type === 'ORDER_PLACED' && msg.payload && msg.payload.order) {
               showToast(`New order placed: ${msg.payload.orderId}`, 'success');
             }
@@ -1587,6 +1702,121 @@
     });
 
   </script>
-</body>
 
+  </div><!-- /admin-dashboard-wrap -->
+
+  <!-- ====================================================
+       ADMIN LOGIN JAVASCRIPT
+       ==================================================== -->
+  <script>
+    // Default credentials — stored in localStorage so admin can change it
+    const ADMIN_PASS_KEY = 'hds_admin_pass';
+    const DEFAULT_ADMIN_PASS = 'admin123';
+    const ADMIN_PHONE_KEY = 'hds_admin_phone';
+    const DEFAULT_ADMIN_PHONE = '7667305677';
+
+    function getAdminPassword() {
+      return localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_ADMIN_PASS;
+    }
+
+    function getAdminPhone() {
+      return localStorage.getItem(ADMIN_PHONE_KEY) ||
+        (typeof appData !== 'undefined' && appData.business && appData.business.whatsapp) ||
+        DEFAULT_ADMIN_PHONE;
+    }
+
+    function toggleAdminPassVis() {
+      const inp = document.getElementById('admin-login-pass');
+      const eye = document.getElementById('admin-pass-eye');
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        eye.textContent = '🙈';
+      } else {
+        inp.type = 'password';
+        eye.textContent = '👁';
+      }
+    }
+
+    function submitAdminLogin(e) {
+      e.preventDefault();
+      const enteredPhone = (document.getElementById('admin-login-phone')?.value || '').trim();
+      const enteredPass = document.getElementById('admin-login-pass')?.value || '';
+      const errEl = document.getElementById('admin-login-error');
+
+      const cleanEnteredPhone = enteredPhone.replace(/\D/g, '').slice(-10);
+      const cleanAdminPhone = String(getAdminPhone()).replace(/\D/g, '').slice(-10);
+
+      // Validate phone length
+      if (!cleanEnteredPhone || cleanEnteredPhone.length < 10) {
+        if (errEl) {
+          errEl.textContent = 'Please enter a valid 10-digit mobile number.';
+          errEl.style.display = 'block';
+        }
+        const pInp = document.getElementById('admin-login-phone');
+        if (pInp) { pInp.focus(); pInp.style.borderColor = '#ff8080'; }
+        return;
+      }
+
+      // Check phone validity (allow configured admin phone, store number, or default numbers 7667305677 / 9876543210)
+      const allowedPhones = [cleanAdminPhone, '7667305677', '9876543210'].filter(Boolean);
+      const isPhoneValid = allowedPhones.includes(cleanEnteredPhone);
+
+      // Check password validity
+      const isPassValid = (enteredPass === getAdminPassword());
+
+      if (isPhoneValid && isPassValid) {
+        sessionStorage.setItem('hds_admin_auth', '1');
+        document.getElementById('admin-login-gate').style.display = 'none';
+        document.getElementById('admin-dashboard-wrap').style.display = 'block';
+        renderDashboard();
+      } else {
+        if (errEl) {
+          if (!isPhoneValid && !isPassValid) {
+            errEl.textContent = 'Incorrect admin phone number and password.';
+          } else if (!isPhoneValid) {
+            errEl.textContent = 'Incorrect phone number. Please enter registered admin mobile.';
+          } else {
+            errEl.textContent = 'Incorrect password. Please try again.';
+          }
+          errEl.style.display = 'block';
+        }
+        const passInp = document.getElementById('admin-login-pass');
+        const phoneInp = document.getElementById('admin-login-phone');
+        if (!isPassValid && passInp) {
+          passInp.value = '';
+          passInp.focus();
+          passInp.style.borderColor = '#ff8080';
+        }
+        if (!isPhoneValid && phoneInp) {
+          phoneInp.focus();
+          phoneInp.style.borderColor = '#ff8080';
+        }
+        setTimeout(() => {
+          if (errEl) errEl.style.display = 'none';
+          if (passInp) passInp.style.borderColor = 'rgba(255,255,255,.15)';
+          if (phoneInp) phoneInp.style.borderColor = 'rgba(255,255,255,.15)';
+        }, 3500);
+      }
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem('hds_admin_auth');
+      location.reload();
+    }
+
+    // Auto-unlock if already authenticated in this session
+    (function () {
+      if (sessionStorage.getItem('hds_admin_auth') === '1') {
+        document.getElementById('admin-login-gate').style.display = 'none';
+        document.getElementById('admin-dashboard-wrap').style.display = 'block';
+      } else {
+        setTimeout(() => {
+          const inp = document.getElementById('admin-login-phone') || document.getElementById('admin-login-pass');
+          if (inp) inp.focus();
+        }, 200);
+      }
+    })();
+  </script>
+</body>
 </html>

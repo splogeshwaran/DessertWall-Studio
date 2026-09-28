@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DessertWall Studio</title>
-  <meta name="description" content="Browse our gallery of real handcrafted desserts - custom cakes, brownies, cupcakes and seasonal creations in Bangalore." />
+  <meta name="description" content="Browse our gallery of real handcrafted desserts - custom cakes, brownies, cupcakes and seasonal creations in Chennai." />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="images/logo.jpg">
 </head>
@@ -20,7 +20,7 @@
       </a>
       <div class="nav-links" id="nav-links">
         <a href="index.html" class="nav-link">Home</a>
-        <a href="menu.html" class="nav-link">Menu</a>
+        <a href="menu.html" class="nav-link">Desserts</a>
         <a href="gallery.html" class="nav-link active">Gallery</a>
         <a href="about.html" class="nav-link">About Us</a>
         <a href="contact.html" class="nav-link">Contact</a>
@@ -88,27 +88,22 @@
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer id="footer">
   <div class="container">
     <div class="footer-grid">
       <div>
         <div class="footer-brand-name">DessertWall Studio</div>
-        <p class="footer-brand-sub">Premium handcrafted desserts made with love.</p>
-          <div class="footer-social">
-            <a href="https://www.instagram.com/homedessert.studio" target="_blank" rel="noopener"
-              aria-label="Instagram"><img src="images/Insta.webp" style="width: 30px;"></a>
-            <a href="#" onclick="openWhatsApp('Hi! I have a question about my dessert order.');return false;"
-              rel="noopener" style="color:var(--c-gold-light);font-weight:600"><img src="images/whatsapp.jpg" style="width: 30px; border-radius: 23%;"></a>
-          </div>
+        <p class="footer-brand-sub">Premium handcrafted desserts baked fresh with love in Chennai.</p>
       </div>
       <div class="footer-col">
         <h5>Explore</h5>
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="menu.html">Menu</a></li>
+          <li><a href="menu.html">Desserts</a></li>
           <li><a href="gallery.html">Gallery</a></li>
           <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -117,13 +112,21 @@
           <li><a href="menu.html?cat=Birthday+Cakes">Birthday Cakes</a></li>
           <li><a href="menu.html?cat=Brownies">Brownies</a></li>
           <li><a href="menu.html?cat=Cupcakes">Cupcakes</a></li>
-          <li><a href="menu.html?cat=Custom+Desserts">Custom Orders</a></li>
+          <li><a href="menu.html?cat=Signature+Desserts">Signature Desserts</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h5>Contact</h5>
-        <p id="footer-timings"></p>
-        <p id="footer-area" style="margin-top:6px;"></p>
+        <h5>Customer Support</h5>
+        <p id="footer-timings">Mon - Sat: 9 AM - 8 PM</p>
+        <p id="footer-area" style="margin-top:6px;"></p><br>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/homedessert.studio" target="_blank" rel="noopener"
+            aria-label="Instagram"><img src="images/Insta.webp" style="width: 30px;"></a>
+          <a href="#" onclick="openWhatsApp('Hi! I have a question about my dessert order.');return false;"
+            rel="noopener" style="color:var(--c-gold-light);font-weight:600"><img src="images/whatsapp.jpg"
+              style="width: 30px; border-radius: 23%;"></a>
+        </div>
+      </div>
     </div>
     <div class="footer-bottom">
       <span>© 2026 DessertWall Studio. Handcrafted with love.</span>
@@ -219,7 +222,7 @@
         </div>
         <div class="form-group full" id="checkout-addr-wrap">
           <label>Delivery Address *</label>
-          <textarea id="checkout-address" placeholder="Flat No., Apartment, Street, Landmark, Bangalore pin code"></textarea>
+          <textarea id="checkout-address" placeholder="Flat No., Apartment, Street, Landmark, Chennai pin code"></textarea>
         </div>
         <div class="form-group full" id="checkout-pincode">
             <label>Pin Code *</label>
@@ -232,10 +235,10 @@
         <div class="form-group">
           <label>Preferred Time Slot</label>
           <select id="checkout-time">
-            <option value="Morning (10 AM - 1 PM)">Morning (10 AM - 1 PM)</option>
-            <option value="Afternoon (1 PM - 4 PM)" selected>Afternoon (1 PM - 4 PM)</option>
-            <option value="Evening (4 PM - 7 PM)">Evening (4 PM - 7 PM)</option>
-            <option value="Night (7 PM - 9 PM)">Night (7 PM - 9 PM)</option>
+            <option value="10 AM - 1 PM">10 AM - 1 PM</option>
+            <option value="1 PM - 4 PM" selected>1 PM - 4 PM</option>
+            <option value="4 PM - 7 PM">4 PM - 7 PM</option>
+            <option value="7 PM - 9 PM">7 PM - 9 PM</option>
           </select>
         </div>
         <div class="form-group full">
@@ -349,7 +352,7 @@
           </div>
           <div class="auth-form-group">
             <label>Default Delivery Address (Optional)</label>
-            <textarea id="signup-address" placeholder="Flat, Building, Area, Landmark, Bangalore..." rows="2" autocomplete="street-address"></textarea>
+            <textarea id="signup-address" placeholder="Flat, Building, Area, Landmark, Chennai..." rows="2" autocomplete="street-address"></textarea>
           </div>
           <button type="submit" class="btn btn-primary btn-block" style="width:100%;justify-content:center;margin-top:10px;">
             Create Account & Sign In
@@ -392,7 +395,7 @@
         </div>
         <div class="auth-form-group">
           <label>Default Delivery Address</label>
-          <textarea id="profile-address" rows="2" placeholder="Apartment / Villa, Street, Locality, Bangalore..."></textarea>
+          <textarea id="profile-address" rows="2" placeholder="Apartment / Villa, Street, Locality, Chennai..."></textarea>
         </div>
 
         <!-- Optional Password Update -->
