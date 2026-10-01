@@ -636,7 +636,7 @@ function handleUserSignup(e) {
 
   closeAuthModal();
   document.getElementById('signup-form')?.reset();
-  showToast(`Account created successfully! Welcome, ${name}! 🎉`, 'success');
+  showToast(`Account created successfully! Welcome, ${name}!`, 'success');
 }
 
 // ------ Editable User Profile System ------
@@ -872,7 +872,7 @@ function openMyOrdersModal() {
             <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
               <button class="btn btn-primary btn-sm" onclick="trackOrderFromMyOrders('${o.id}')" style="flex:1;font-size:.82rem;display:inline-flex;align-items:center;justify-content:center;gap:6px;">Track Order
               </button>
-              ${canCancel ? `<button class="btn-outline-danger" onclick="promptCancelOrder('${o.id}')" style="flex:1;font-size:.8rem;">✕ Cancel Order</button>` : ''}
+              ${canCancel ? `<button class="btn-outline-danger" onclick="promptCancelOrder('${o.id}')" style="flex:1;font-size:.8rem;">Cancel Order</button>` : ''}
             </div>
           </div>
         `;
@@ -902,12 +902,12 @@ function closeMyOrdersModal() {
 //  TRACK ORDER MODAL
 // =============================================================
 const ORDER_STATUS_STEPS = [
-  { key: 'Pending', label: 'Order Placed', icon: '📝', desc: 'Your order has been received and is awaiting confirmation.' },
-  { key: 'Confirmed', label: 'Order Confirmed', icon: '👩‍🍳', desc: 'Our baker has confirmed your order.' },
-  { key: 'Preparing', label: 'Being Prepared', icon: '🧁', desc: 'Your desserts are being freshly baked and decorated.' },
-  { key: 'Ready', label: 'Ready for Dispatch', icon: '📦', desc: 'Packed and ready for delivery or pickup.' },
-  { key: 'Out for Delivery', label: 'Out for Delivery', icon: '🛵', desc: 'On the way to your address right now!' },
-  { key: 'Delivered', label: 'Delivered!', icon: '🎉', desc: 'Order delivered. Thank you for choosing DessertWall Studio!' }
+  { key: 'Pending', label: 'Order Placed', desc: 'Your order has been received and is awaiting confirmation.' },
+  { key: 'Confirmed', label: 'Order Confirmed', desc: 'Our baker has confirmed your order.' },
+  { key: 'Preparing', label: 'Being Prepared', desc: 'Your desserts are being freshly baked and decorated.' },
+  { key: 'Ready', label: 'Ready for Dispatch', desc: 'Packed and ready for delivery or pickup.' },
+  { key: 'Out for Delivery', label: 'Out for Delivery', desc: 'On the way to your address right now!' },
+  { key: 'Delivered', label: 'Delivered!', desc: 'Order delivered. Thank you for choosing DessertWall Studio!' }
 ];
 
 let _trackOrderUnsubscribe = null;
@@ -1024,7 +1024,7 @@ function renderTrackSearchResults(orders) {
             <div class="track-order-id-label">${o.id}</div>
             <span class="status-badge ${sc}">${o.status}</span>
           </div>
-          <div style="font-size:.82rem;color:var(--c-text-muted);">📅 ${o.date} &nbsp;|&nbsp; ${o.customer.name} &nbsp;|&nbsp; ₹${o.total.toLocaleString()}</div>
+          <div style="font-size:.82rem;color:var(--c-text-muted);">${o.date} &nbsp;|&nbsp; ${o.customer.name} &nbsp;|&nbsp; ₹${o.total.toLocaleString()}</div>
         </div>`;
   }).join('')}`;
 }
@@ -1055,11 +1055,13 @@ function renderTrackOrderDetails(order) {
         ${ORDER_STATUS_STEPS.map((step, idx) => {
     let nodeClass = '';
     if (idx < currentStepIdx) nodeClass = 'completed';
-    else if (idx === currentStepIdx) nodeClass = 'active';
-    const icon = idx < currentStepIdx ? '✓' : step.icon;
+    else if (idx === currentStepIdx) {
+      // Mark as 'delivered' (full green) when the Delivered step is active
+      nodeClass = step.key === 'Delivered' ? 'active delivered' : 'active';
+    }
     return `
             <div class="step-node ${nodeClass}">
-              <div class="step-icon-wrap">${icon}</div>
+              <div class="step-icon-wrap"></div>
               <div class="step-info">
                 <div class="step-label">${step.label}</div>
                 <div class="step-desc">${idx === currentStepIdx ? '<strong>' + step.desc + '</strong>' : step.desc}</div>
@@ -1107,14 +1109,14 @@ function renderTrackOrderDetails(order) {
     ${stepperHtml}
 
     <div class="track-card-overview">
-      <div style="font-size:.88rem;font-weight:700;color:var(--c-brown);margin-bottom:8px;font-family:'Playfair Display',serif;">🛍️ Items Ordered</div>
+      <div style="font-size:.88rem;font-weight:700;color:var(--c-brown);margin-bottom:8px;font-family:'Playfair Display',serif;">Items Ordered</div>
       ${itemsList}
     </div>
 
     ${canCancel ? `
     <div style="display:flex;justify-content:flex-end;margin-top:4px;">
       <button class="btn-outline-danger" onclick="promptCancelOrder('${order.id}')" id="btn-cancel-${order.id}">
-        ✕ Cancel This Order
+        Cancel This Order
       </button>
     </div>` : ''}
 
@@ -1242,7 +1244,6 @@ function ensureCancelDialog() {
   dialog.innerHTML = `
     <div class="cancel-modal-card">
       <div class="cancel-modal-header">
-        <div class="cancel-alert-icon">⚠️</div>
         <div>
           <h4 style="font-family:'Playfair Display',serif;color:var(--c-brown);font-size:1.1rem;margin-bottom:4px;">Cancel Your Order?</h4>
           <p style="font-size:.83rem;color:var(--c-text-muted);">Order <strong id="cancel-dialog-order-id"></strong> will be marked as cancelled. This action cannot be undone.</p>
@@ -1329,10 +1330,10 @@ function renderProductCard(p) {
         <div class="product-cat">${p.category}</div>
         <h3 class="product-name">${p.name}</h3>
         <p class="product-desc">${p.description.substring(0, 110)}...</p>
-        <div class="product-price">${p.priceLabel}</div>
+        <div class="product-price">Starting from: <span style="color:var(--c-gold);font-size:19px"> ₹${p.price}</span></div>
         <div class="product-actions">
           <button class="btn ${p.available ? 'btn-primary' : 'btn-outline'} btn-sm btn-block" onclick="openProductModal('${p.id}')">
-            ${p.available ? 'View Details' : 'View Details'}
+            ${p.available ? 'Order Now' : 'Order Now'}
           </button>
         </div>
       </div>
@@ -1425,6 +1426,12 @@ function openProductModal(productId) {
   if (addBtn) {
     addBtn.disabled = !p.available;
     addBtn.textContent = p.available ? 'Add to Cart ' : 'Currently Unavailable';
+  }
+
+  const onbtn = document.getElementById("modal-order-now-btn");
+  if (onbtn) {
+    onbtn.disabled = !p.available;
+    onbtn.textContent = p.available ? 'Order Now ' : 'Currently Unavailable';
   }
 
   const modal = document.getElementById('product-modal');
@@ -1529,6 +1536,140 @@ function addCurrentProductToCart() {
   closeModal();
   showToast(`Added ${item.name} to cart!`, 'success');
 }
+
+// Direct order item tracking & Instant Promo Applier (for single product checkout via "Order Now")
+let directOrderItem = null;
+let instantPromoCode = null;
+
+function getActiveCheckoutItems() {
+  if (directOrderItem) {
+    return [directOrderItem];
+  }
+  return getCart();
+}
+
+// -------------------------------------------------------------
+//  PROMO APPLIER 1: Instant Order Promo Applier (for Instant Order)
+// -------------------------------------------------------------
+function applyInstantPromoCode(customCode) {
+  let code = '';
+  if (typeof customCode === 'string' && customCode.trim()) {
+    code = customCode.trim().toUpperCase();
+  } else {
+    const input = document.getElementById('checkout-promo-input');
+    if (input) code = input.value.trim().toUpperCase();
+  }
+
+  const feedbackEl = document.getElementById('checkout-promo-msg');
+
+  if (!code) {
+    showToast('Please enter a coupon code.', 'error');
+    if (feedbackEl) {
+      feedbackEl.textContent = 'Please enter a coupon code.';
+      feedbackEl.className = 'checkout-coupon-feedback error';
+    }
+    return;
+  }
+
+  if (!PROMO_CODES[code]) {
+    showToast(`Invalid coupon code "${code}". Please try again.`, 'error');
+    if (feedbackEl) {
+      feedbackEl.textContent = `"${code}" is not a valid coupon. Try SWEET15, BROWNIE10, SAVE50, or WELCOME.`;
+      feedbackEl.className = 'checkout-coupon-feedback error';
+    }
+    return;
+  }
+
+  const offer = PROMO_CODES[code];
+  const items = getActiveCheckoutItems();
+  const subtotal = items.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0);
+  if (offer.minOrder && subtotal < offer.minOrder) {
+    const msg = `Coupon ${code} requires a minimum order of ₹${offer.minOrder.toLocaleString()}.`;
+    showToast(msg, 'error');
+    if (feedbackEl) {
+      feedbackEl.textContent = `${msg} (Your item total is ₹${subtotal.toLocaleString()})`;
+      feedbackEl.className = 'checkout-coupon-feedback warning';
+    }
+    return;
+  }
+
+  instantPromoCode = code;
+  showToast(`Coupon ${code} applied to Instant Order! ${offer.label}`, 'success');
+  if (typeof renderCheckoutSummary === 'function') {
+    renderCheckoutSummary();
+  }
+}
+
+// Alias for backwards compatibility with user's function
+const applyPromoCodeon = applyInstantPromoCode;
+
+function removeInstantPromoCode() {
+  instantPromoCode = null;
+  showToast('Coupon removed from Instant Order.', 'info');
+  if (typeof renderCheckoutSummary === 'function') {
+    renderCheckoutSummary();
+  }
+}
+
+function orderNow() {
+  if (!currentProduct) return;
+  if (!currentProduct.available) {
+    showToast('This item is currently unavailable', 'error');
+    return;
+  }
+
+  const unitPrice = calculateCurrentItemUnitPrice();
+  const size = getSelected('size-chips');
+  const flavour = getSelected('flavour-chips');
+  const egg = getSelected('egg-chips');
+  const customMessage = document.getElementById('modal-custom')?.value.trim() || '';
+  const preferredDate = document.getElementById('modal-date')?.value || '';
+  const specialNotes = document.getElementById('modal-special')?.value.trim() || '';
+
+  const item = {
+    id: currentProduct.id,
+    name: currentProduct.name,
+    image: currentProduct.image,
+    size: size,
+    flavour: flavour,
+    egg: egg,
+    customMessage: customMessage,
+    preferredDate: preferredDate,
+    specialNotes: specialNotes,
+    price: unitPrice,
+    quantity: modalQty
+  };
+
+  // Set ONLY this one product for direct instant checkout
+  directOrderItem = item;
+  instantPromoCode = null; // Fresh instant promo state for this instant order
+
+  // Close the product modal
+  closeModal();
+
+  // Pre-fill preferred date into checkout modal if chosen
+  if (preferredDate) {
+    const checkoutDate = document.getElementById('checkout-date');
+    if (checkoutDate) checkoutDate.value = preferredDate;
+  }
+
+  // Pre-fill cake custom message & special instructions into checkout notes
+  const checkoutNotes = document.getElementById('checkout-notes');
+  if (checkoutNotes) {
+    const notesParts = [];
+    if (customMessage) notesParts.push(`Cake Message: "${customMessage}"`);
+    if (specialNotes) notesParts.push(`Special Notes: ${specialNotes}`);
+    if (notesParts.length) {
+      const existing = checkoutNotes.value.trim();
+      checkoutNotes.value = existing ? `${existing}\n${notesParts.join(' | ')}` : notesParts.join(' | ');
+    }
+  }
+
+  // Open checkout for ONLY this one customized product (Instant Checkout mode)
+  openCheckout();
+  showToast(`Ordering ${item.name} (${item.quantity} ${item.quantity > 1 ? 'items' : 'item'})!`, 'success');
+}
+
 
 // =============================================================
 //  Persistent Cart System & Separate Cart Card
@@ -1732,7 +1873,7 @@ function renderCart() {
     `;
   }).join('');
 
-  // Delivery & Free delivery threshold (₹499)
+  // Delivery & Free delivery threshold (₹1499)
   const freeThreshold = 1499;
   const isFreeDelivery = subtotal >= freeThreshold;
   const deliveryFee = isFreeDelivery ? 0 : 60;
@@ -1769,14 +1910,14 @@ function renderCart() {
       promoHtml += `
         <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
           <div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:6px;padding:6px 12px;font-size:.82rem;font-weight:600;color:#2E7D32;flex:1;">
-            ✅ Code <strong>${appliedCode.toUpperCase()}</strong> applied — You save ₹${discount.toLocaleString()}!
+            Code <strong>${appliedCode.toUpperCase()}</strong> applied — You save ₹${discount.toLocaleString()}!
           </div>
           <button onclick="removePromoCode()" style="background:transparent;border:1px solid var(--c-border);border-radius:6px;padding:6px 10px;font-size:.8rem;color:var(--c-text-muted);cursor:pointer;">Remove</button>
         </div>`;
     } else {
       promoHtml += `
         <div style="margin-top:8px;display:flex;gap:6px;">
-          <input type="text" id="promo-code-input" placeholder="Enter promo code (e.g. SWEET15)" value="${appliedCode}" style="flex:1;padding:7px 12px;border:1px solid var(--c-border);border-radius:6px;font-size:.82rem;font-family:'Inter',sans-serif;background:#fff;" onkeydown="if(event.key==='Enter')applyPromoCode()" />
+          <input type="text" id="promo-code-input" placeholder="Enter promo code (e.g. SWEET15)" value="${appliedCode}" style="flex:1;padding:7px 12px;border:1px solid var(--c-border);border-radius:6px;font-size:.82rem;font-family:'Inter',sans-serif;background:#fff;text-transform: uppercase;" onkeydown="if(event.key==='Enter')applyPromoCode()" />
           <button onclick="applyPromoCode()" style="background:var(--c-gold);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer;">Apply</button>
         </div>`;
     }
@@ -1802,60 +1943,176 @@ function renderCart() {
 
   const totalEl = document.getElementById('cart-total');
   if (totalEl) totalEl.textContent = `₹${total.toLocaleString()}`;
+
 }
 
 // =============================================================
 //  Checkout & Instant Order Creation
 // =============================================================
+function renderCheckoutSummary() {
+  const summaryEl = document.getElementById('checkout-order-summary');
+  if (!summaryEl) return;
+
+  const isInstantOrder = !!directOrderItem;
+  const cart = getActiveCheckoutItems();
+  if (!cart.length) {
+    summaryEl.innerHTML = `
+      <div style="text-align:center;padding:24px 16px;color:var(--c-text-muted);">
+        <div style="font-size:2rem;margin-bottom:8px;"></div>
+        <p style="font-size:.95rem;font-weight:600;color:var(--c-brown);margin-bottom:4px;">Your cart is empty</p>
+        <p style="font-size:.82rem;">Please add delicious desserts from our menu to continue.</p>
+      </div>`;
+    return;
+  }
+
+  let subtotal = 0;
+  let totalItems = 0;
+  cart.forEach(i => {
+    const qty = i.quantity || 1;
+    subtotal += (i.price * qty);
+    totalItems += qty;
+  });
+
+  const deliveryTypeEl = document.querySelector('input[name="delivery-type"]:checked');
+  const isPickup = deliveryTypeEl && deliveryTypeEl.value === 'pickup';
+  const freeThreshold = 1499;
+  const isFreeDelivery = isPickup || subtotal >= freeThreshold;
+  const deliveryFee = isFreeDelivery ? 0 : 60;
+
+  // --- Determine promo source based on checkout mode ---
+  let discount = 0;
+  let activePromoCode = '';
+  let activeOffer = null;
+
+  if (isInstantOrder) {
+    // Instant Order: use instantPromoCode state variable
+    activePromoCode = instantPromoCode || '';
+    activeOffer = activePromoCode && PROMO_CODES[activePromoCode] ? PROMO_CODES[activePromoCode] : null;
+  } else {
+    // Cart Order: use the cart-level promo from localStorage
+    activePromoCode = (localStorage.getItem('hds_promo_code') || '').toUpperCase();
+    activeOffer = activePromoCode && PROMO_CODES[activePromoCode] ? PROMO_CODES[activePromoCode] : null;
+  }
+
+  if (activeOffer && subtotal > 0) {
+    if (activeOffer.discountType === 'percent') {
+      if (!activeOffer.minOrder || subtotal >= activeOffer.minOrder) {
+        discount = Math.round(subtotal * activeOffer.discountValue / 100);
+      }
+    } else if (activeOffer.discountType === 'flat') {
+      if (!activeOffer.minOrder || subtotal >= activeOffer.minOrder) {
+        discount = Math.min(activeOffer.discountValue, subtotal);
+      }
+    }
+  }
+
+  const total = Math.max(0, subtotal + deliveryFee - discount);
+
+  // --- Build the promo section based on mode ---
+  let promoSectionHtml = '';
+  if (isInstantOrder) {
+    // Instant Order: show promo input with its own apply/remove functions
+    if (activeOffer) {
+      promoSectionHtml = `
+        <div class="checkout-coupon-box">
+          <div class="checkout-coupon-header">
+            <span class="checkout-coupon-title">Coupon Code</span>
+            <span style="font-size:.78rem;color:#2E7D32;font-weight:600;">Active</span>
+          </div>
+          <div class="checkout-coupon-applied-card">
+            <div class="coupon-applied-left">
+              <span class="coupon-applied-badge">${activePromoCode}</span>
+              <span class="coupon-applied-label">${activeOffer.label}</span>
+            </div>
+            <button type="button" class="checkout-coupon-remove-btn" onclick="removeInstantPromoCode()">
+              Remove
+            </button>
+          </div>
+        </div>`;
+    } else {
+      promoSectionHtml = `
+        <div class="checkout-coupon-box">
+          <div class="checkout-coupon-header">
+            <span class="checkout-coupon-title">Apply Coupon Code</span>
+          </div>
+          <div class="checkout-coupon-input-row">
+            <input
+              type="text"
+              id="checkout-promo-input"
+              class="checkout-coupon-input"
+              placeholder="Type coupon code (e.g. SWEET15)"
+              autocomplete="off"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();applyInstantPromoCode();}"
+            />
+            <button type="button" class="checkout-coupon-apply-btn" onclick="applyInstantPromoCode()">
+              Apply
+            </button>
+          </div>
+          <div id="checkout-promo-msg" class="checkout-coupon-feedback"></div>
+        </div>`;
+    }
+  }
+
+  summaryEl.innerHTML = `
+      <div class="checkout-summary-title">
+        <span>Order Summary</span>
+        <span class="checkout-summary-count">${totalItems} item${totalItems > 1 ? 's' : ''}</span>
+      </div>
+
+      <div class="checkout-items-list">
+        ${cart.map(i => `
+          <div class="checkout-item-line">
+            <div class="checkout-item-details">
+              <span class="checkout-item-qty">${i.quantity}×</span>
+              <strong class="checkout-item-name">${i.name}</strong>
+              ${(i.size || i.flavour || i.egg) ? `<span class="checkout-item-variant">(${[i.size, i.flavour, i.egg].filter(Boolean).join(', ')})</span>` : ''}
+              ${i.customMessage ? `<div class="checkout-item-msg">"${i.customMessage}"</div>` : ''}
+            </div>
+            <div class="checkout-item-price">₹${(i.price * (i.quantity || 1)).toLocaleString()}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="checkout-breakdown">
+        <div class="checkout-breakdown-row">
+          <span>Subtotal (${totalItems} items)</span>
+          <span>₹${subtotal.toLocaleString()}</span>
+        </div>
+        <div class="checkout-breakdown-row">
+          <span>
+            Delivery Fee
+            ${isPickup ? '<span class="checkout-badge-pickup">Direct Studio Pickup</span>' : (isFreeDelivery ? '<span class="checkout-badge-free">FREE Delivery Unlocked</span>' : '')}
+          </span>
+          <span style="${isFreeDelivery ? 'color:#2E7D32;font-weight:700;' : ''}">${isFreeDelivery ? 'FREE' : `₹${deliveryFee}`}</span>
+        </div>
+        ${discount > 0 ? `
+          <div class="checkout-breakdown-row checkout-discount-row">
+            <span>Coupon Discount (${activePromoCode})</span>
+            <span style="color:#2E7D32;font-weight:700;">-₹${discount.toLocaleString()}</span>
+          </div>
+        ` : ''}
+      </div>
+
+      ${promoSectionHtml}
+
+      <div class="checkout-total-row">
+        <span>Total Payable:</span>
+        <span class="checkout-total-val">₹${total.toLocaleString()}</span>
+      </div>
+  `;
+}
+
 function openCheckout() {
-  const cart = getCart();
+  const cart = getActiveCheckoutItems();
   if (!cart.length) {
     showToast('Your cart is empty!', 'error');
     return;
   }
-  closeCart();
+  // Only close the cart drawer when checking out from cart (not from Order Now)
+  if (!directOrderItem) closeCart();
 
-  let subtotal = 0;
-  cart.forEach(i => subtotal += (i.price * i.quantity));
-  const freeThreshold = 499;
-  const deliveryFee = subtotal >= freeThreshold ? 0 : 50;
-
-  const appliedOffer = getAppliedOffer();
-  let discount = 0;
-  if (appliedOffer && subtotal > 0) {
-    if (appliedOffer.discountType === 'percent') {
-      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
-        discount = Math.round(subtotal * appliedOffer.discountValue / 100);
-      }
-    } else if (appliedOffer.discountType === 'flat') {
-      if (!appliedOffer.minOrder || subtotal >= appliedOffer.minOrder) {
-        discount = Math.min(appliedOffer.discountValue, subtotal);
-      }
-    }
-  }
-  const total = subtotal + deliveryFee - discount;
-
-  const summaryEl = document.getElementById('checkout-order-summary');
-  if (summaryEl) {
-    summaryEl.innerHTML = `
-      <div style="background:var(--c-pink-subtle);border:1px solid var(--c-pink-border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
-        <div style="font-weight:600;color:var(--c-brown);margin-bottom:6px;">Order Summary (${cart.length} unique item${cart.length > 1 ? 's' : ''}):</div>
-        ${cart.map(i => `<div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--c-text-soft);margin-bottom:3px;">
-          <span>${i.quantity}x ${i.name} (${i.size || 'Regular'})</span>
-          <span>₹${(i.price * i.quantity).toLocaleString()}</span>
-        </div>`).join('')}
-        ${discount > 0 ? `
-        <div style="display:flex;justify-content:space-between;font-size:.84rem;color:#2E7D32;margin-top:6px;font-weight:600;">
-          <span>🏷️ Promo Discount (${localStorage.getItem('hds_promo_code') || ''})</span>
-          <span>-₹${discount.toLocaleString()}</span>
-        </div>` : ''}
-        <div style="border-top:1px dashed var(--c-border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-weight:700;color:var(--c-brown);">
-          <span>Total Payable:</span>
-          <span>₹${total.toLocaleString()}</span>
-        </div>
-      </div>
-    `;
-  }
+  // Render the real-time order summary with workable coupon typer
+  renderCheckoutSummary();
 
   const minDate = new Date().toISOString().split('T')[0];
   const dateInput = document.getElementById('checkout-date');
@@ -1878,6 +2135,22 @@ function openCheckout() {
     if (addrEl && !addrEl.value) addrEl.value = user.address || '';
   }
 
+  // Wire up delivery type change to dynamically update address fields and delivery fee
+  document.querySelectorAll('input[name="delivery-type"]').forEach(radio => {
+    radio.onchange = function () {
+      const isPick = this.value === 'pickup';
+      const addrWrap = document.getElementById('checkout-addr-wrap');
+      const pinWrap = document.getElementById('checkout-pincode');
+      const pinInput = document.getElementById('checkout-pin');
+
+      if (addrWrap) addrWrap.style.display = isPick ? 'none' : 'block';
+      if (pinWrap) pinWrap.style.display = isPick ? 'none' : 'block';
+      if (pinInput) pinInput.required = !isPick;
+
+      renderCheckoutSummary();
+    };
+  });
+
   const modal = document.getElementById('checkout-modal');
   if (modal) {
     modal.classList.remove('hidden');
@@ -1889,23 +2162,13 @@ function closeCheckout() {
   const modal = document.getElementById('checkout-modal');
   if (modal) modal.classList.add('hidden');
   document.body.style.overflow = '';
+  // Clear the direct order item so future cart checkouts work normally
+  directOrderItem = null;
 }
-
-const pincodes = [
-  "600008",
-  "600007",
-  "600010",
-  "600031",
-  "600006",
-  "600034",
-  "600002",
-  "600003",
-  "600014"
-];
 
 function submitOrder(e) {
   if (e) e.preventDefault();
-  const cart = getCart();
+  const cart = getActiveCheckoutItems();
   if (!cart.length) {
     showToast('Your cart is empty', 'error');
     return;
@@ -1915,47 +2178,54 @@ function submitOrder(e) {
   const phone = document.getElementById('checkout-phone')?.value.trim();
   const email = document.getElementById('checkout-email')?.value.trim() || '';
   const deliveryType = document.querySelector('input[name="delivery-type"]:checked')?.value || 'delivery';
-  const address = document.getElementById('checkout-address')?.value.trim() || (deliveryType === 'pickup' ? 'Direct Studio Pickup' : '');
+  const isPickup = deliveryType === 'pickup';
+  const address = isPickup ? 'Direct Studio Pickup' : (document.getElementById('checkout-address')?.value.trim() || '');
   const preferredDate = document.getElementById('checkout-date')?.value || '';
   const timeSlot = document.getElementById('checkout-time')?.value || '1 PM - 4 PM';
   const paymentMethod = document.getElementById('checkout-payment')?.value || 'UPI';
   const notes = document.getElementById('checkout-notes')?.value.trim() || '';
   const pin = document.getElementById('checkout-pin')?.value.trim() || '';
+
   if (!name || !phone) {
     showToast('Please enter your Name and Mobile Number', 'error');
     return;
   }
 
-  if (deliveryType === 'delivery' && !address) {
-    showToast('Please enter your delivery address', 'error');
-    return;
-  }
-
-  if (pin === "") {
-    showToast('Please enter a Pincode', 'error');
-    return;
-  }
-
-  if (!/^\d{6}$/.test(pin)) {
-    showToast('Please enter a valid 6-digit Pincode', 'error');
-    return;
-  }
-
-  if (pin < 600001 || pin > 600118) {
-    showToast('Please enter a  valid Chennai Pincode', 'error');
-    return;
-  }
-
-  if (!pincodes.includes(pin)) {
-    showToast(`Sorry, we are not available at ${pin}`, 'error');
-    return;
+  if (!isPickup) {
+    if (!address) {
+      showToast('Please enter your delivery address', 'error');
+      return;
+    }
+    if (!pin) {
+      showToast('Please enter a Pincode', 'error');
+      return;
+    }
+    if (!/^\d{6}$/.test(pin)) {
+      showToast('Please enter a valid 6-digit Pincode', 'error');
+      return;
+    }
+    const pinNum = parseInt(pin, 10);
+    if (pinNum < 600001 || pinNum > 600130) {
+      showToast('We deliver across Chennai pincodes (600001 - 600130). For other areas, select Direct Studio Pickup.', 'error');
+      return;
+    }
   }
 
   let subtotal = 0;
-  cart.forEach(i => subtotal += (i.price * i.quantity));
-  const deliveryFee = subtotal >= 499 ? 0 : 50;
+  cart.forEach(i => subtotal += (i.price * (i.quantity || 1)));
+  const deliveryFee = (deliveryType === 'pickup' || subtotal >= 1499) ? 0 : 60;
 
-  const appliedOffer = getAppliedOffer();
+  // Determine promo source: instant orders use instantPromoCode, cart orders use localStorage
+  const isInstantOrderSubmit = !!directOrderItem;
+  let appliedCode = '';
+  let appliedOffer = null;
+  if (isInstantOrderSubmit) {
+    appliedCode = instantPromoCode || '';
+    appliedOffer = appliedCode && PROMO_CODES[appliedCode] ? PROMO_CODES[appliedCode] : null;
+  } else {
+    appliedCode = (localStorage.getItem('hds_promo_code') || '').toUpperCase();
+    appliedOffer = appliedCode && PROMO_CODES[appliedCode] ? PROMO_CODES[appliedCode] : null;
+  }
   let discount = 0;
   if (appliedOffer && subtotal > 0) {
     if (appliedOffer.discountType === 'percent') {
@@ -1968,7 +2238,7 @@ function submitOrder(e) {
       }
     }
   }
-  const total = subtotal + deliveryFee - discount;
+  const total = Math.max(0, subtotal + deliveryFee - discount);
 
   const now = new Date();
   const orderId = `ORD-${now.getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -1987,9 +2257,11 @@ function submitOrder(e) {
       timeSlot
     },
     items: cart,
+    isDirectOrder: !!directOrderItem,
     subtotal,
     deliveryFee,
     discount,
+    promoCode: appliedCode || null,
     total,
     paymentMethod,
     status: 'Pending',
@@ -2008,9 +2280,13 @@ function submitOrder(e) {
     addOrder(orderData);
   }
 
-  // Clear cart and promo code
-  saveCart([]);
-  localStorage.removeItem('hds_promo_code');
+  // Clear cart only when it was a full cart checkout (not a direct Order Now)
+  if (!directOrderItem) {
+    saveCart([]);
+    localStorage.removeItem('hds_promo_code'); // only clear cart promo on cart checkout
+  } else {
+    instantPromoCode = null; // clear instant promo after instant order completes
+  }
   closeCheckout();
 
   // Show celebratory success modal
@@ -2032,6 +2308,7 @@ function showOrderSuccess(order) {
         <div><strong>Delivery Type:</strong> ${order.customer.deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup at Studio'}</div>
         <div><strong>Preferred Date:</strong> ${order.customer.preferredDate || 'Earliest available'} (${order.customer.timeSlot})</div>
         <div><strong>Payment:</strong> ${order.paymentMethod}</div>
+        ${order.discount > 0 ? `<div style="color:#2E7D32;"><strong>Coupon Discount:</strong> ${order.promoCode ? order.promoCode + ' ' : ''}(-₹${order.discount.toLocaleString()})</div>` : ''}
         <div style="margin-top:6px;font-weight:700;color:var(--c-brown);">Total Amount: ₹${order.total.toLocaleString()}</div>
       </div>
       <button class="btn btn-outline btn-block" onclick="closeOrderSuccess(); setTimeout(() => { ensureTrackOrderModal(); openTrackOrderModal('${order.id}'); }, 80);" style="margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;">
@@ -2118,34 +2395,81 @@ function getAppliedOffer() {
   return code && PROMO_CODES[code] ? { ...PROMO_CODES[code], code } : null;
 }
 
-function applyPromoCode() {
-  const input = document.getElementById('promo-code-input');
-  if (!input) return;
-  const code = input.value.trim().toUpperCase();
+function applyPromoCode(customCode) {
+  let code = '';
+  if (typeof customCode === 'string' && customCode.trim()) {
+    code = customCode.trim().toUpperCase();
+  } else {
+    const input = document.getElementById('promo-code-input');
+    if (input) code = input.value.trim().toUpperCase();
+  }
+
+  const feedbackEl = document.getElementById('checkout-promo-msg');
+
   if (!code) {
-    showToast('Please enter a promo code.', 'error');
+    showToast('Please enter a coupon code.', 'error');
+    if (feedbackEl) {
+      feedbackEl.textContent = 'Please enter a coupon code.';
+      feedbackEl.className = 'checkout-coupon-feedback error';
+    }
     return;
   }
+
   if (!PROMO_CODES[code]) {
-    showToast('Invalid promo code. Please check and try again.', 'error');
+    showToast(`Invalid coupon code "${code}". Please try again.`, 'error');
+    if (feedbackEl) {
+      feedbackEl.textContent = `"${code}" is not a valid coupon. Try SWEET15, BROWNIE10, SAVE50, or WELCOME.`;
+      feedbackEl.className = 'checkout-coupon-feedback error';
+    }
     return;
   }
+
   const offer = PROMO_CODES[code];
   const cart = getCart();
-  const subtotal = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  const subtotal = cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0);
   if (offer.minOrder && subtotal < offer.minOrder) {
-    showToast(`This code requires a minimum order of ₹${offer.minOrder.toLocaleString()}.`, 'error');
+    const msg = `Coupon ${code} requires a minimum order of ₹${offer.minOrder.toLocaleString()}.`;
+    showToast(msg, 'error');
+    if (feedbackEl) {
+      feedbackEl.textContent = `${msg} (Your subtotal is ₹${subtotal.toLocaleString()})`;
+      feedbackEl.className = 'checkout-coupon-feedback warning';
+    }
     return;
   }
+
+  const promoEl = document.getElementById('cart-promocode');
+  if (promoEl) {
+    if (offer) {
+      promoEl.textContent = offer.code;
+    } else {
+      promoEl.textContent = "No Promo Code Applied";
+    }
+  }
+
+  const discEl = document.getElementById('cart-disc');
+  if (discEl) {
+    if (discount > 0) {
+      discEl.textContent = `-₹${discount.toLocaleString()}`;
+    } else {
+      discEl.textContent = "";
+    }
+  }
+
   localStorage.setItem('hds_promo_code', code);
-  showToast(`Promo code ${code} applied! ${offer.label}`, 'success');
+  showToast(`Coupon ${code} applied! ${offer.label}`, 'success');
   renderCart();
+  if (typeof renderCheckoutSummary === 'function') {
+    renderCheckoutSummary();
+  }
 }
 
 function removePromoCode() {
   localStorage.removeItem('hds_promo_code');
-  showToast('Promo code removed.', '');
+  showToast('Coupon removed.', 'info');
   renderCart();
+  if (typeof renderCheckoutSummary === 'function') {
+    renderCheckoutSummary();
+  }
 }
 
 // =============================================================
@@ -2357,8 +2681,8 @@ function initReviewsCarousel() {
       <div class="test-stars">${stars}</div>
       <p class="test-review">"${t.review}"</p>
       <div class="test-name">— ${t.name}${t.date
-      ? `<span style="font-size:.72rem;color:var(--c-text-muted);margin-left:6px;">${t.date}</span>`
-      : ''}</div>
+        ? `<span style="font-size:.72rem;color:var(--c-text-muted);margin-left:6px;">${t.date}</span>`
+        : ''}</div>
     </div>
   `;
   }).join('');
@@ -2494,3 +2818,416 @@ function setReviewRating(n) {
   reviewRating = n;
   document.querySelectorAll('#starPick button').forEach((b, i) => b.classList.toggle('on', i < n));
 }
+
+// ============================================================
+//  DessertBot — AI Chat Widget & Knowledge Engine
+// ============================================================
+
+(function () {
+  let botChatTurnCount = 0;
+  let botHasGreeted = false;
+
+  // 1. Inject Chatbot Widget into DOM
+  function injectDessertBot() {
+    // Skip chatbot on admin page
+    if (window.location.pathname.toLowerCase().includes('admin')) return;
+    if (document.getElementById('dessertbot-toggle')) return;
+
+    // Toggle button
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'dessertbot-toggle';
+    toggleBtn.setAttribute('aria-label', 'Chat with Brownie AI Assistant');
+    toggleBtn.setAttribute('title', 'Chat with Brownie about ingredients, craft & orders');
+    toggleBtn.innerHTML = `<img src="images/chatbot.png" alt="Brownie" class="bot-toggle-img">`;
+
+    // Chat Window
+    const win = document.createElement('div');
+    win.id = 'dessertbot-window';
+    win.className = 'bot-hidden';
+    win.setAttribute('role', 'dialog');
+    win.setAttribute('aria-label', 'Brownie Assistant');
+    win.innerHTML = `
+      <div class="bot-header">
+        <div class="bot-avatar"><img src="images/chatbot.png" alt="Brownie"></div>
+        <div class="bot-header-info">
+          <div class="bot-header-name">Brownie</div>
+          <div class="bot-header-status"><span class="bot-status-dot"></span> Online · AI Assistant</div>
+        </div>
+        <button class="bot-close-btn" id="bot-close-btn" aria-label="Close Chat">×</button>
+      </div>
+      <div class="bot-messages" id="bot-messages"></div>
+      <div class="bot-input-row">
+        <input type="text" id="bot-input" placeholder="Ask Brownie about ingredients, craft, orders..." autocomplete="off">
+        <button id="bot-send-btn" aria-label="Send Message">➤</button>
+      </div>
+    `;
+
+    document.body.appendChild(toggleBtn);
+    document.body.appendChild(win);
+
+    // Event listeners
+    toggleBtn.addEventListener('click', () => toggleDessertBot());
+    const closeBtn = document.getElementById('bot-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDessertBot(false);
+      });
+    }
+
+    const input = document.getElementById('bot-input');
+    const sendBtn = document.getElementById('bot-send-btn');
+
+    if (sendBtn) sendBtn.addEventListener('click', () => botSend());
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          botSend();
+        }
+      });
+    }
+  }
+
+  // 2. Toggle Window
+  function toggleDessertBot(forceState) {
+    const win = document.getElementById('dessertbot-window');
+    const toggleBtn = document.getElementById('dessertbot-toggle');
+    if (!win) return;
+    const isHidden = win.classList.contains('bot-hidden');
+    const shouldOpen = typeof forceState === 'boolean' ? forceState : isHidden;
+
+    if (shouldOpen) {
+      win.classList.remove('bot-hidden');
+      if (toggleBtn) {
+        toggleBtn.classList.add('bot-hidden');
+        toggleBtn.disabled = true;
+        toggleBtn.setAttribute('aria-hidden', 'true');
+      }
+
+      if (!botHasGreeted) {
+        showBotWelcome();
+        botHasGreeted = true;
+      }
+      setTimeout(() => {
+        const input = document.getElementById('bot-input');
+        if (input) input.focus();
+      }, 200);
+    } else {
+      win.classList.add('bot-hidden');
+      if (toggleBtn) {
+        toggleBtn.classList.remove('bot-hidden');
+        toggleBtn.disabled = false;
+        toggleBtn.removeAttribute('aria-hidden');
+      }
+    }
+  }
+  window.toggleDessertBot = toggleDessertBot;
+
+  // Exit chat on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const win = document.getElementById('dessertbot-window');
+      if (win && !win.classList.contains('bot-hidden')) {
+        toggleDessertBot(false);
+      }
+    }
+  });
+
+  // 3. Welcome Message
+
+  function showBotWelcome() {
+    appendBotMsg(`
+      Hello! 👋 Welcome to <strong>DessertWall Studio</strong>. I'm <strong>Brownie</strong>, your personal dessert assistant.<br><br>
+      I can guide you on <strong>how our treats are handcrafted</strong>, our <strong>pure ingredients</strong>, <strong>100% eggless options</strong>, <strong>delivery</strong>, and <strong>custom orders</strong>.<br><br>
+      How may I sweeten your day?
+    `);
+  }
+
+  // 4. Contact Card Helper
+  function getContactCardHtml(customNote) {
+    const note = customNote || "For personalized guidance, custom design cakes, or immediate assistance, our team is right here:";
+    const phone = (window.appData && window.appData.business && window.appData.business.whatsapp) || "7667305677";
+    return `
+      <div class="bot-contact-card">
+        <div class="bot-contact-label">📞 Direct Studio Support</div>
+        <p style="margin: 0 0 6px 0; font-size: 0.77rem; color: var(--c-text-soft); line-height: 1.4;">${note}</p>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <a href="tel:+91${phone}">📞 Call: +91 76673 05677</a>
+          <a href="#" onclick="openWhatsApp('Hi DessertWall Studio! I need assistance with my dessert order.'); return false;">💬 Chat on WhatsApp (+91 76673 05677)</a>
+        </div>
+      </div>
+    `;
+  }
+
+  // 5. Append User and Bot Messages
+  function appendUserMsg(text) {
+    const container = document.getElementById('bot-messages');
+    if (!container) return;
+    const msg = document.createElement('div');
+    msg.className = 'bot-msg user';
+    msg.innerHTML = `<div class="bot-bubble">${escapeHtml(text)}</div>`;
+    container.appendChild(msg);
+    scrollToBottom();
+  }
+
+  function appendBotMsg(html) {
+    const container = document.getElementById('bot-messages');
+    if (!container) return;
+    const msg = document.createElement('div');
+    msg.className = 'bot-msg bot';
+    msg.innerHTML = `
+      <div class="bot-bubble">${html}</div>
+    `;
+    container.appendChild(msg);
+    scrollToBottom();
+  }
+
+  function showTypingIndicator() {
+    const container = document.getElementById('bot-messages');
+    if (!container) return null;
+    const typing = document.createElement('div');
+    typing.className = 'bot-msg bot bot-typing-msg';
+    typing.innerHTML = `
+        <span></span><span></span><span></span>
+      </div>
+    `;
+    container.appendChild(typing);
+    scrollToBottom();
+    return typing;
+  }
+
+  function scrollToBottom() {
+    const container = document.getElementById('bot-messages');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // 6. Knowledge Base & Response Engine
+  function processBotResponse(query) {
+    const q = query.toLowerCase().trim();
+    botChatTurnCount++;
+
+    // Check if query is high complexity / extended catering / urgent
+    const isExtendedQuery = /(wedding|catering|bulk|corporate|urgent|same day|tomorrow|party package|custom quote|consultation|manager|speak to human|talk to human|agent)/i.test(q);
+
+    // Topic 1: How it's made / baking craft
+    if (/(how.*(made|make|bake|prepare|crafted|kitchen|cook)|baking process|handcrafted|scratch|recipe|technique|method|freshly baked)/i.test(q)) {
+      let resp = `
+        <strong>✨ Handcrafted With Love:</strong><br>
+        At DessertWall Studio, every dessert is baked fresh from scratch in our boutique kitchen in small batches:<br>
+        • <strong>Fresh to Order:</strong> We never mass-produce or freeze batches; baking starts only after order confirmation.<br>
+        • <strong>Artisan Techniques:</strong> Slow-melted Belgian chocolate, hand-whipped ganache, and European folding methods.<br>
+        • <strong>No Premixes:</strong> 100% scratch baking without commercial base mixes or artificial stabilizers.<br>
+        • <strong>Careful Packaging:</strong> Chilled and packed in insulated, food-safe boxes to maintain peak moisture and texture.
+      `;
+      if (isExtendedQuery || botChatTurnCount >= 3) {
+        resp += `<br>` + getContactCardHtml("Have a custom recipe requirement, tiered wedding cake, or specific dietary preference?");
+      }
+      return { html: resp, chips: ["Ingredients used", "100% Eggless options?", "Custom cakes", "How to order"] };
+    }
+
+    // Topic 2: Ingredients
+    if (/(ingredient|what do you use|what is used|chocolate|butter|flour|cocoa|vanilla|cream|preservative|chemical|additive|sugar|gelatin|dairy|pure|clean label)/i.test(q)) {
+      let resp = `
+        <strong>🌿 Our Pure, Premium Ingredients:</strong><br>
+        We believe exceptional desserts require uncompromising ingredient quality:<br>
+        • <strong>Belgian Couverture Chocolate:</strong> Premium 54.5% and 70% cocoa solids for decadent ganache.<br>
+        • <strong>Pure Dairy Butter & Cream:</strong> 100% real cow butter; zero margarine, dalda, or hydrogenated fats.<br>
+        • <strong>Madagascar Bourbon Vanilla:</strong> Real vanilla bean extract for an authentic floral fragrance.<br>
+        • <strong>Gelatin-Free:</strong> All our eggless mousses & jellies use 100% plant-based agar-agar.<br>
+        • <strong>Zero Artificial Preservatives:</strong> Clean, fresh, wholesome ingredients from trusted purveyors.
+      `;
+      if (isExtendedQuery || botChatTurnCount >= 3) {
+        resp += `<br>` + getContactCardHtml("Need an allergy-safe dessert or special allergen list?");
+      }
+      return { html: resp, chips: ["100% Eggless options?", "How are desserts made?", "Delivery details", "Menu items"] };
+    }
+
+    // Topic 3: Eggless / Vegetarian
+    if (/(eggless|egg free|egg-free|without egg|vegetarian|veg|contain egg|contains egg|no egg)/i.test(q)) {
+      let resp = `
+        <strong>🌱 100% Eggless Options Available:</strong><br>
+        Yes! All our signature cakes, cupcakes, and brownie boxes are available in <strong>100% Eggless</strong> variants.<br>
+        • We use separate prep tools and sanitized baking trays.<br>
+        • Our eggless sponges are naturally cultured with fresh dairy yoghurt and condensed milk, achieving a moist, heavenly crumb that rivals traditional recipes!<br>
+        • Simply select <em>'Eggless'</em> in the cake customizer or checkout page.
+      `;
+      return { html: resp, chips: ["How are desserts made?", "Ingredients used", "Custom cakes", "How to order"] };
+    }
+
+    // Topic 4: Delivery / Areas / Pincode
+    if (/(delivery|deliver|shipping|ship|chennai|location|area|address|doorstep|fee|charges|cost of delivery|free delivery|pincode|pickup)/i.test(q)) {
+      let resp = `
+        <strong>🚚 Delivery & Studio Pickup:</strong><br>
+        • <strong>Service Area:</strong> We deliver across all major localities in Chennai, Tamil Nadu.<br>
+        • <strong>Free Delivery:</strong> Enjoy <strong>Free Delivery</strong> on all orders above ₹1,499!<br>
+        • <strong>Standard Delivery:</strong> Flat ₹60 for orders below ₹1,499.<br>
+        • <strong>Direct Studio Pickup:</strong> Free pickup is also available directly from our studio.<br>
+        • <strong>Lead Time:</strong> Most cakes require 24h - 48h advance notice; custom celebration cakes require 72h.
+      `;
+      if (isExtendedQuery || botChatTurnCount >= 3) {
+        resp += `<br>` + getContactCardHtml("Need urgent same-day delivery or midnight surprise delivery?");
+      }
+      return { html: resp, chips: ["How to order", "Active offers", "Custom cakes", "Ingredients used"] };
+    }
+
+    // Topic 5: How to Order / Payment
+    if (/(how.*(order|buy|purchase)|place order|order now|checkout|cart|payment|upi|gpay|cod|cash on delivery|how can i)/i.test(q)) {
+      let resp = `
+        <strong>🛒 Easy Ways to Order:</strong><br>
+        1. <strong>Direct Single Order:</strong> Click <em>'Order Now'</em> on any dessert card or modal for quick checkout with custom notes and coupon application.<br>
+        2. <strong>Cart Checkout:</strong> Click <em>'Add to Cart'</em> to combine multiple items and proceed to checkout.<br>
+        3. <strong>Payment Options:</strong> We support UPI (GPay, PhonePe, Paytm), Net Banking, Cards, and Cash on Delivery / Studio Pickup.<br>
+        4. <strong>WhatsApp:</strong> You can also tap the green WhatsApp button to order directly with our baker!
+      `;
+      return { html: resp, chips: ["Active offers", "Delivery details", "Custom cakes", "Menu items"] };
+    }
+
+    // Topic 6: Shelf Life / Storage
+    if (/(shelf life|storage|store|how long|keep|fridge|refrigerate|expiry|expire|freshness|temperature)/i.test(q)) {
+      let resp = `
+        <strong>❄️ Storage & Freshness Tips:</strong><br>
+        • <strong>Cakes:</strong> Keep refrigerated (4°C - 6°C). Bring to room temperature 15-20 minutes before serving for the creamiest texture. Best consumed within 48 hours.<br>
+        • <strong>Brownies:</strong> Store in an airtight container at room temperature for 4-5 days, or in fridge for up to a week. Warm for 10 seconds in microwave for a gooey molten fudge experience!<br>
+        • <strong>Cupcakes:</strong> Store in a cool, dry place. Best enjoyed within 24-48 hours.
+      `;
+      return { html: resp, chips: ["Ingredients used", "How are desserts made?", "How to order"] };
+    }
+
+    // Topic 7: Custom Cakes & Personalization
+    if (/(custom|personaliz|theme|birthday cake|photo cake|anniversary|topper|message|name on cake|design|tier|special request)/i.test(q)) {
+      let resp = `
+        <strong>🎨 Custom Celebrations & Cake Design:</strong><br>
+        We turn your celebration dreams into edible artistry!<br>
+        • Complimentary personalized message written on all celebration cakes & brownie boxes.<br>
+        • Free custom acrylic gold topper included with eligible birthday cakes.<br>
+        • Custom flavors, multi-tiered cakes, and theme styling available.<br>
+        • For intricate theme cakes, please place your order 48 to 72 hours in advance.
+      `;
+      resp += `<br>` + getContactCardHtml("Share your theme photos, guest count, and design vision with our head cake artist:");
+      return { html: resp, chips: ["How are desserts made?", "Ingredients used", "Delivery details", "How to order"] };
+    }
+
+    // Topic 8: Offers & Coupon Codes
+    if (/(offer|coupon|discount|promo|deal|code|sweet15|brownie10|welcome|save|voucher)/i.test(q)) {
+      let resp = `
+        <strong>🏷️ Current Exclusive Offers & Coupons:</strong><br>
+        • <strong>SWEET15:</strong> 15% OFF on cake orders above ₹1,000.<br>
+        • <strong>BROWNIE10:</strong> 10% OFF on all gourmet brownie boxes.<br>
+        • <strong>WELCOME:</strong> ₹50 OFF on your first dessert order.<br>
+        • <strong>FREE DELIVERY:</strong> Automatically applied on all orders above ₹1,499.<br>
+        You can type and apply these codes directly on the checkout page!
+      `;
+      return { html: resp, chips: ["How to order", "Menu items", "Delivery details"] };
+    }
+
+    // Topic 9: Products & Menu & Pricing
+    if (/(menu|product|item|cake|brownie|cupcake|truffle|mousse|price|cost|rate|variety|what do you have)/i.test(q)) {
+      let resp = `
+        <strong>🍰 DessertWall Studio Bestsellers:</strong><br>
+        • <strong>Chocolate Truffle Cake:</strong> Decadent dark ganache, starting from ₹850.<br>
+        • <strong>Vanilla Floral Celebration Cake:</strong> Fresh edible flowers, starting from ₹1,100.<br>
+        • <strong>Gourmet Brownie Box:</strong> Sea-salt walnut & Nutella fudgy brownies, starting from ₹450.<br>
+        • <strong>Assorted Cupcakes:</strong> Buttercream swirled box of 6/12/24, starting from ₹380.<br>
+        • <strong>Belgian Mirror Glaze Mousse:</strong> Signature entremets, starting from ₹950.<br>
+        Check our <em>Menu</em> page for full size and flavor configurations!
+      `;
+      return { html: resp, chips: ["How to order", "Active offers", "100% Eggless options?", "Ingredients used"] };
+    }
+
+    // Topic 10: Timings & Studio Location
+    if (/(timing|hour|open|close|sunday|where are you|location|address|studio|shop)/i.test(q)) {
+      let resp = `
+        <strong>⏰ Studio Timings & Location:</strong><br>
+        • <strong>Location:</strong> Chennai, Tamil Nadu.<br>
+        • <strong>Working Hours:</strong><br>
+          &nbsp;&nbsp;Mon - Sat: 9:00 AM - 8:00 PM<br>
+          &nbsp;&nbsp;Sunday: 10:00 AM - 6:00 PM<br>
+        • <strong>Online Orders:</strong> Accepted 24/7 on this website!
+      `;
+      resp += `<br>` + getContactCardHtml();
+      return { html: resp, chips: ["How to order", "Delivery details", "Custom cakes"] };
+    }
+
+    // Topic 11: Contact / Speak to Human / Phone
+    if (/(contact|phone|number|call|whatsapp|reach|speak|talk|support|human|help|agent|baker)/i.test(q)) {
+      let resp = `
+        <strong>📞 Connect With Our Bakery Team:</strong><br>
+        We're always here to assist you with customized orders, event inquiries, or order updates!
+      `;
+      resp += `<br>` + getContactCardHtml();
+      return { html: resp, chips: ["How are desserts made?", "Ingredients used", "How to order", "Custom cakes"] };
+    }
+
+    // Topic 12: Greetings
+    if (/^(hi|hello|hey|good morning|good afternoon|good evening|namaste|greetings)(\s|$|[!?.])/i.test(q)) {
+      return {
+        html: `Hello! 👋 I'm <strong>Brownie</strong>! How may I assist you today? You can ask me about how our desserts are made, our pure ingredients, 100% eggless options, delivery, or custom cakes!`
+      };
+    }
+
+    // Topic 13: Thank you
+    if (/(thank|thanks|awesome|great|super|cool|perfect|helpful|ok|okay)/i.test(q)) {
+      let resp = `You're very welcome! 🍫 Wishing you a sweet and delightful day. Let me know if you need anything else!`;
+      if (botChatTurnCount >= 3) {
+        resp += `<br>` + getContactCardHtml("For any upcoming celebrations or bulk orders, keep our direct helpline handy:");
+      }
+      return { html: resp };
+    }
+
+    // Topic 14: Out of Scope / Deflection ("Out of box")
+    // Professional deflection message + contact card for extended queries
+    const deflectionHtml = `
+      I appreciate your question! However, that falls outside my area of expertise. 🍫<br><br>
+      I am <strong>Brownie</strong>, specialized exclusively in DessertWall Studio's handcrafted desserts, baking craft, ingredients, and order assistance.<br><br>
+      If your query relates to a specialized order, partnership, or you need personal assistance, our team is always delighted to assist you directly:
+      ${getContactCardHtml("Feel free to call or WhatsApp our studio team:")}
+    `;
+
+    return {
+      html: deflectionHtml,
+      chips: ["How are desserts made?", "Ingredients used", "100% Eggless options?", "Delivery details"]
+    };
+  }
+
+  // 7. Bot Send Action
+  function botSend(customText) {
+    const input = document.getElementById('bot-input');
+    const text = (customText !== undefined ? customText : (input ? input.value : '')).trim();
+    if (!text) return;
+
+    if (input) input.value = '';
+
+    appendUserMsg(text);
+
+    // Show typing indicator
+    const typingIndicator = showTypingIndicator();
+
+    setTimeout(() => {
+      if (typingIndicator && typingIndicator.parentNode) {
+        typingIndicator.parentNode.removeChild(typingIndicator);
+      }
+      const response = processBotResponse(text);
+      appendBotMsg(response.html);
+      if (typeof renderChips === 'function') {
+        renderChips(response.chips);
+      }
+    }, 650);
+  }
+  window.botSend = botSend;
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectDessertBot);
+  } else {
+    injectDessertBot();
+  }
+})();
